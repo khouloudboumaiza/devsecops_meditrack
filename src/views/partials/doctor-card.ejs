@@ -1,0 +1,8 @@
+<article class="card doc-card">
+  <a class="doc-card-link" href="/medecins/<%= d.id %>/reserver" aria-label="Réserver avec <%= d.nom %>">
+    <div class="doc-card-top"><span class="avatar avatar-lg <%= avatarClass(d.id) %>" aria-hidden="true"><%= initials(d.nom) %></span></div>
+    <h3><%= d.nom %></h3>
+    <p class="muted"><%= d.specialite %></p>
+    <p class="rating"><span class="icon icon-sm i-star" aria-hidden="true"></span><strong><%= Number(d.note).toFixed(1) %></strong><span class="price"><%= money(d.tarif) %></span></p>
+  </a>
+</article>

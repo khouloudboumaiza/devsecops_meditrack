@@ -1,0 +1,137 @@
+<header class="page-head no-print">
+  <div style="display:flex;align-items:center;gap:var(--s2);">
+    <a class="icon-btn" href="<%= user.role === 'medecin' ? '/medecin/patients/' + ord.patient_id : '/dossier' %>" aria-label="Retour">
+      <span class="icon i-arrow-left" aria-hidden="true"></span>
+    </a>
+    <div>
+      <h1>Ordonnance Médicale N° <%= ord.id %></h1>
+      <p class="muted small">Délivrée le <%= String(ord.date_creation.toISOString()).slice(0, 10) %> par le <%= ord.medecin_nom %></p>
+    </div>
+  </div>
+  <button type="button" class="btn btn-primary btn-sm no-print" data-action="print">
+    <span class="icon icon-sm i-calendar" aria-hidden="true"></span>
+    Imprimer cette ordonnance
+  </button>
+</header>
+
+<div class="prescription-wrapper">
+  <div class="prescription-sheet">
+    
+    <!-- Filigrane (Watermark) médical discret en arrière-plan -->
+    <svg class="watermark-bg" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+      <path d="M50,85 C22,65 5,45 5,28 C5,13 18,3 32,3 C40,3 47,8 50,14 C53,8 60,3 68,3 C82,3 95,13 95,28 C95,45 78,65 50,85 Z" />
+    </svg>
+
+    <div class="prescription-content">
+      <!-- EN-TÊTE : Bandeau courbé & Identité du praticien prescripteur -->
+      <div class="prescription-header">
+        <div class="curved-ribbon">
+          <div class="ribbon-sub">Clinique MediTrack</div>
+          <h2 class="ribbon-title">Ordonnance</h2>
+          <div class="ribbon-tag">Prescription Officielle</div>
+        </div>
+
+        <div class="doc-identity">
+          <div class="doc-icon-box">
+            <span class="icon i-stethoscope" aria-hidden="true"></span>
+          </div>
+          <div class="doc-text">
+            <div class="doc-name"><%= ord.medecin_nom %></div>
+            <div class="doc-spec"><%= ord.medecin_specialite || 'Médecine Générale' %></div>
+            <div class="doc-reg">Ordre des Médecins N° 14820</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOC INFORMATIONS EN DEUX COLONNES (comme la capture modèle) -->
+      <div class="prescription-info-grid">
+        <div class="info-col">
+          <div class="info-row">
+            <span class="info-label">Nom du patient :</span>
+            <span class="info-val"><%= ord.patient_nom %></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Date :</span>
+            <span class="info-val"><%= String(ord.date_creation.toISOString()).slice(0, 10) %></span>
+          </div>
+          <% if (ord.date_naissance) { %>
+            <div class="info-row">
+              <span class="info-label">Date de naissance :</span>
+              <span class="info-val"><%= new Date(ord.date_naissance).toLocaleDateString('fr-FR') %></span>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="info-col">
+          <div class="info-row">
+            <span class="info-label">Médecin :</span>
+            <span class="info-val"><%= ord.medecin_nom %></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Ordonnance N° :</span>
+            <span class="info-val">ORD-<%= String(ord.id).padStart(4, '0') %></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Diagnostic associé :</span>
+            <span class="info-val primary-hl"><%= ord.diagnostic_associe || 'Consultation médicale' %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CORPS DE L'ORDONNANCE : Rx & CONTENU TEXTE LIBRE -->
+      <div class="prescription-body">
+        
+        <div class="rx-header">
+          <span class="rx-badge">Rx</span>
+          <span class="rx-text">Traitements, posologies et recommandations médicales</span>
+        </div>
+
+        <!-- Contenu de la prescription -->
+        <div class="presc-content-display">
+          <% (ord.contenu || '').split('\n').forEach(function (line) { %>
+            <p class="presc-line"><%= line %></p>
+          <% }) %>
+        </div>
+
+        <!-- Signature et cachet du praticien -->
+        <div class="presc-signature-wrap">
+          <div class="presc-signature-box">
+            <div class="presc-signature-line">
+              <span class="presc-sign-name"><%= ord.medecin_nom %></span>
+            </div>
+            <div class="presc-sign-label">Signature &amp; Cachet du Praticien</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PIED DE PAGE COLORÉ AVEC QR CODE, ADRESSE ET CONTACT -->
+    <footer class="prescription-footer">
+      <div class="presc-footer-grid">
+        <div class="presc-qr-col">
+          <div class="presc-qr-box">
+            <svg class="presc-qr-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm10 0h2v2h-2v-2zm4 0h2v2h-2v-2zm-4 4h2v2h-2v-2zm4 0h2v2h-2v-2zm-2-2h2v2h-2v-2zm4-2h2v2h-2v-2zM6 6h2v2H6V6zm10 0h2v2h-2V6zM6 18h2v2H6v-2z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="footer-label">Vérification QR</div>
+            <div class="footer-sub">Ordonnance certifiée MediTrack</div>
+          </div>
+        </div>
+        <div class="presc-info-col">
+          <div class="footer-label">Clinique MediTrack</div>
+          <div class="footer-text">12 Avenue Habib Bourguiba</div>
+          <div class="footer-sub">1001 Tunis, Tunisie</div>
+        </div>
+        <div class="presc-info-col">
+          <div class="footer-label">Contact Cabinet</div>
+          <div class="footer-text">Tél : +216 71 123 456</div>
+          <div class="footer-sub">contact@meditrack.tn</div>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+</div>

@@ -1,0 +1,23 @@
+<div class="auth-wrap">
+  <a class="brand" href="/"><img src="/icons/logo.svg" alt="" width="36" height="36">MediTrack</a>
+  <section class="card auth-card">
+    <h1>Connexion</h1>
+    <p class="lead">Heureux de vous revoir.</p>
+    <% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
+    <form class="form" method="post" action="/login">
+      <div class="field">
+        <label for="email">Adresse e-mail</label>
+        <input id="email" name="email" type="email" required autocomplete="email" placeholder="vous@exemple.com" value="<%= values.email || '' %>">
+        <small class="field-error" data-error-for="email" role="alert"></small>
+      </div>
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input id="password" name="password" type="password" required autocomplete="current-password">
+        <small class="field-error" data-error-for="password" role="alert"></small>
+      </div>
+      <button class="btn btn-block" type="submit">Se connecter</button>
+    </form>
+    <p class="muted small">Pas encore de compte ? <a href="/register">Créer un compte</a></p>
+    <p class="demo-box">Comptes de test : patient1@meditrack.test ou medecin1@meditrack.test, mot de passe <strong>Password123!</strong></p>
+  </section>
+</div>

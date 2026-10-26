@@ -1,0 +1,167 @@
+<header class="page-head">
+  <a class="icon-btn" href="/admin" aria-label="Retour au tableau de bord"><span class="icon i-arrow-left" aria-hidden="true"></span></a>
+  <h1>Gestion des Utilisateurs</h1>
+</header>
+
+<!-- Filtres et Recherche -->
+<div class="card" style="margin-bottom:var(--s3)">
+  <form class="search" method="get" action="/admin/utilisateurs" style="margin-bottom:var(--s2)">
+    <div class="search-field">
+      <span class="icon i-search" aria-hidden="true"></span>
+      <label class="sr-only" for="q">Rechercher</label>
+      <input id="q" name="q" type="search" value="<%= q %>" placeholder="Rechercher par nom ou e-mail…">
+    </div>
+    <% if (filterRole !== 'tous') { %><input type="hidden" name="role" value="<%= filterRole %>"><% } %>
+    <button class="btn btn-sm" type="submit">Rechercher</button>
+  </form>
+
+  <nav class="chips" aria-label="Filtrer par rôle">
+    <a class="chip <%= filterRole === 'tous' ? 'active' : '' %>" href="/admin/utilisateurs<%= q ? '?q=' + encodeURIComponent(q) : '' %>">Tous</a>
+    <a class="chip <%= filterRole === 'medecin' ? 'active' : '' %>" href="/admin/utilisateurs?role=medecin<%= q ? '&q=' + encodeURIComponent(q) : '' %>">Médecins</a>
+    <a class="chip <%= filterRole === 'secretaire' ? 'active' : '' %>" href="/admin/utilisateurs?role=secretaire<%= q ? '&q=' + encodeURIComponent(q) : '' %>">Secrétaires</a>
+    <a class="chip <%= filterRole === 'patient' ? 'active' : '' %>" href="/admin/utilisateurs?role=patient<%= q ? '&q=' + encodeURIComponent(q) : '' %>">Patients</a>
+    <a class="chip <%= filterRole === 'admin' ? 'active' : '' %>" href="/admin/utilisateurs?role=admin<%= q ? '&q=' + encodeURIComponent(q) : '' %>">Admins</a>
+  </nav>
+</div>
+
+<!-- Tableau des utilisateurs (style table "Recent Patients" de la capture) -->
+<div class="card">
+  <div class="section-head">
+    <h2>Liste des Comptes (<%= users.length %>)</h2>
+  </div>
+
+  <div class="table-responsive">
+    <table class="dash-table">
+      <thead>
+        <tr>
+          <th>Utilisateur</th>
+          <th>Rôle</th>
+          <th>Détail / Rattachement</th>
+          <th>Statut</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach(function (u) { %>
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span class="avatar avatar-sm <%= avatarClass(u.id) %>"><%= initials(u.nom) %></span>
+                <div>
+                  <strong><%= u.nom %></strong>
+                  <div class="muted small"><%= u.email %></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge <%= u.role === 'admin' ? 'badge-urgent' : u.role === 'medecin' ? 'badge-info' : u.role === 'secretaire' ? 'badge-warning' : 'badge-success' %>">
+                <%= u.role %>
+              </span>
+            </td>
+            <td>
+              <% if (u.role === 'medecin') { %>
+                <%= u.specialite %>
+              <% } else if (u.role === 'secretaire') { %>
+                <%= u.medecin_nom ? 'Rattachée au ' + u.medecin_nom : 'Non assignée' %>
+              <% } else { %>
+                —
+              <% } %>
+            </td>
+            <td>
+              <span class="badge <%= u.actif ? 'badge-success' : 'badge-danger' %>">
+                <%= u.actif ? 'Actif' : 'Désactivé' %>
+              </span>
+            </td>
+            <td>
+              <% if (u.id !== user.id) { %>
+                <form method="post" action="/admin/users/<%= u.id %>/toggle-actif" style="display:inline">
+                  <button class="btn btn-sm <%= u.actif ? 'btn-danger-outline' : 'btn-outline' %>" type="submit">
+                    <%= u.actif ? 'Désactiver' : 'Activer' %>
+                  </button>
+                </form>
+              <% } else { %>
+                <span class="muted small">Compte actuel</span>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Grille des formulaires de création de comptes -->
+<div class="dash-main-grid" style="margin-top:var(--s4)">
+
+  <!-- Formulaire 1 : Créer un Médecin -->
+  <div class="dash-col" id="creer-medecin">
+    <div class="card">
+      <div class="card-title">
+        <span class="icon i-stethoscope"></span>
+        <h2>Ajouter un Médecin</h2>
+      </div>
+      <form class="form" method="post" action="/admin/users/medecin">
+        <div class="field">
+          <label for="doc-nom">Nom complet (avec Dr)</label>
+          <input id="doc-nom" name="nom" type="text" required placeholder="Dr Prénom Nom">
+        </div>
+        <div class="field">
+          <label for="doc-email">Adresse e-mail</label>
+          <input id="doc-email" name="email" type="email" required placeholder="docteur@meditrack.test">
+        </div>
+        <div class="field">
+          <label for="doc-pass">Mot de passe provisoire</label>
+          <input id="doc-pass" name="password" type="password" required minlength="8" value="Password123!">
+        </div>
+        <div class="field">
+          <label for="doc-spec">Spécialité</label>
+          <select id="doc-spec" name="specialite" required>
+            <% specialites.forEach(function (s) { %>
+              <option value="<%= s.nom %>"><%= s.nom %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="field">
+          <label for="doc-tarif">Tarif de consultation (TND)</label>
+          <input id="doc-tarif" name="tarif" type="number" step="0.5" value="45.0" required>
+        </div>
+        <button class="btn btn-block" type="submit">Créer le compte médecin</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Formulaire 2 : Créer une Secrétaire et l'assigner à un médecin -->
+  <div class="dash-col" id="creer-secretaire">
+    <div class="card">
+      <div class="card-title">
+        <span class="icon i-users"></span>
+        <h2>Ajouter une Secrétaire</h2>
+      </div>
+      <form class="form" method="post" action="/admin/users/secretaire">
+        <div class="field">
+          <label for="sec-nom">Nom complet</label>
+          <input id="sec-nom" name="nom" type="text" required placeholder="Prénom Nom">
+        </div>
+        <div class="field">
+          <label for="sec-email">Adresse e-mail</label>
+          <input id="sec-email" name="email" type="email" required placeholder="secretaire@meditrack.test">
+        </div>
+        <div class="field">
+          <label for="sec-pass">Mot de passe provisoire</label>
+          <input id="sec-pass" name="password" type="password" required minlength="8" value="Password123!">
+        </div>
+        <div class="field">
+          <label for="sec-doc">Médecin rattaché</label>
+          <select id="sec-doc" name="medecin_id" required>
+            <option value="">-- Sélectionner le médecin rattaché --</option>
+            <% doctorsList.forEach(function (d) { %>
+              <option value="<%= d.id %>"><%= d.nom %> (<%= d.specialite %>)</option>
+            <% }) %>
+          </select>
+        </div>
+        <button class="btn btn-block" type="submit">Créer le compte secrétaire</button>
+      </form>
+    </div>
+  </div>
+
+</div>

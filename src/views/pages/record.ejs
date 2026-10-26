@@ -1,0 +1,29 @@
+<header class="page-head">
+  <a class="icon-btn" href="<%= user.role === 'medecin' ? '/medecin/patients/' + r.patient_id : '/dossier' %>" aria-label="Retour"><span class="icon i-arrow-left" aria-hidden="true"></span></a>
+  <h1>Dossier médical</h1>
+</header>
+<section class="card">
+  <p class="muted small">Patient</p>
+  <h2><%= r.patient_nom %></h2>
+  <div class="record-block"><h3><span class="icon icon-sm i-shield" aria-hidden="true"></span>Diagnostic</h3><p><%= r.diagnostic || '—' %></p></div>
+  <div class="record-block"><h3><span class="icon icon-sm i-pill" aria-hidden="true"></span>Ordonnance</h3><p><%= r.ordonnance || '—' %></p></div>
+  <div class="record-block">
+    <h3><span class="icon icon-sm i-pencil" aria-hidden="true"></span>Notes du médecin</h3>
+    <% (r.notes || '').split('\n').filter(Boolean).forEach(function (line) { %>
+      <!-- VULN-06 : XSS stocké - la note est affichée sans échappement -->
+      <p class="note-line"><%- line %></p>
+    <% }) %>
+    <% if (!r.notes) { %><p class="muted">Aucune note.</p><% } %>
+  </div>
+</section>
+<% if (user.role === 'medecin') { %>
+  <form class="card form" method="post" action="/records/<%= r.id %>/notes">
+    <h2>Ajouter une note</h2>
+    <div class="field">
+      <label for="note">Note de consultation</label>
+      <textarea id="note" name="note" required minlength="3" maxlength="500" placeholder="Observations, conduite à tenir…"></textarea>
+      <small class="field-error" data-error-for="note" role="alert"></small>
+    </div>
+    <button class="btn" type="submit">Enregistrer la note</button>
+  </form>
+<% } %>

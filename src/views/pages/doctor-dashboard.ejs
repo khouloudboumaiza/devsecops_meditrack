@@ -1,0 +1,151 @@
+<header class="dash-topbar">
+  <div>
+    <h1>Tableau de bord Médecin</h1>
+    <p class="muted">Bienvenue, <strong><%= user.nom %></strong> · Espace de consultation</p>
+  </div>
+  <div class="dash-actions">
+    <a class="btn btn-pill" href="/medecin/patients">
+      <span class="icon icon-sm i-search" aria-hidden="true"></span>
+      Rechercher un patient
+    </a>
+  </div>
+</header>
+
+<!-- 4 KPI Cards (calquées sur la capture) -->
+<section class="dash-kpi-grid" aria-label="Statistiques de la journée">
+  <div class="dash-kpi-card">
+    <div>
+      <span class="kpi-num"><%= stats.aujourdhui %></span>
+      <span class="kpi-label">Consultations du jour</span>
+    </div>
+    <div class="kpi-icon-badge">
+      <span class="icon i-calendar" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  <div class="dash-kpi-card">
+    <div>
+      <span class="kpi-num"><%= stats.a_venir %></span>
+      <span class="kpi-label">Rendez-vous à venir</span>
+    </div>
+    <div class="kpi-icon-badge">
+      <span class="icon i-clock" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  <div class="dash-kpi-card">
+    <div>
+      <span class="kpi-num"><%= stats.patients %></span>
+      <span class="kpi-label">Patients suivis</span>
+    </div>
+    <div class="kpi-icon-badge">
+      <span class="icon i-users" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  <div class="dash-kpi-card">
+    <div>
+      <span class="kpi-num"><%= stats.termines %></span>
+      <span class="kpi-label">Actes terminés</span>
+    </div>
+    <div class="kpi-icon-badge">
+      <span class="icon i-check" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<!-- Grille centrale à 2 colonnes (calquée sur la capture) -->
+<div class="dash-main-grid">
+
+  <!-- Colonne Gauche : Rendez-vous du jour -->
+  <div class="dash-col">
+    <div class="card">
+      <div class="section-head">
+        <h2>Rendez-vous prévus aujourd'hui</h2>
+        <span class="badge badge-info"><%= today.length %> créneau(x)</span>
+      </div>
+
+      <% if (today.length) { %>
+        <div class="dash-appt-list">
+          <% today.forEach(function (a) { %>
+            <div class="dash-appt-item">
+              <span class="avatar <%= avatarClass(a.patient_id) %>"><%= initials(a.patient_nom) %></span>
+              <div class="appt-info">
+                <a href="/medecin/patients/<%= a.patient_id %>" style="font-weight:700;color:var(--text);text-decoration:none;">
+                  <%= a.patient_nom %>
+                </a>
+                <span class="muted small"><%= a.heure %> · <%= typeLabel(a.type) %></span>
+                <span class="small"><%= a.motif %></span>
+              </div>
+              <span class="badge <%= badgeClass(a.statut) %>"><%= statutLabel(a.statut) %></span>
+
+              <!-- Boutons circulaires d'action rapide -->
+              <div class="appt-circle-actions">
+                <% if (a.statut !== 'termine') { %>
+                  <form method="post" action="/medecin/rendez-vous/<%= a.id %>/statut" style="display:inline">
+                    <input type="hidden" name="statut" value="termine">
+                    <button class="circle-btn circle-btn-success" type="submit" title="Marquer la consultation comme terminée">
+                      <span class="icon icon-sm i-check"></span>
+                    </button>
+                  </form>
+                <% } %>
+                <a class="circle-btn circle-btn-info" href="/medecin/patients/<%= a.patient_id %>" title="Ouvrir le dossier médical">
+                  <span class="icon icon-sm i-file"></span>
+                </a>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty">
+          <span class="icon i-calendar" aria-hidden="true"></span>
+          <p class="muted">Aucune consultation prévue pour aujourd'hui.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Colonne Droite : Recherche patient + Patients récents -->
+  <div class="dash-col">
+
+    <!-- Recherche patient (contient VULN-01) -->
+    <div class="card">
+      <div class="section-head">
+        <h2>Recherche Patient</h2>
+      </div>
+      <form class="search" method="get" action="/medecin/patients" role="search">
+        <div class="search-field">
+          <span class="icon i-search" aria-hidden="true"></span>
+          <label class="sr-only" for="q">Rechercher</label>
+          <input id="q" name="q" type="search" placeholder="Rechercher par nom…">
+        </div>
+        <button class="btn btn-sm" type="submit">Rechercher</button>
+      </form>
+    </div>
+
+    <!-- Patients récents (style "Recent Patients" de la capture) -->
+    <div class="card" style="margin-top:var(--s3)">
+      <div class="section-head">
+        <h2>Patients Récents</h2>
+        <a class="small" href="/medecin/patients">Voir tout</a>
+      </div>
+
+      <div class="dash-appt-list">
+        <% recentPatients.forEach(function (p) { %>
+          <div class="dash-appt-item">
+            <span class="avatar <%= avatarClass(p.id) %>"><%= initials(p.nom) %></span>
+            <div class="appt-info">
+              <strong><%= p.nom %></strong>
+              <span class="muted small"><%= p.email %></span>
+            </div>
+            <a class="btn btn-outline btn-sm" href="/medecin/patients/<%= p.id %>">
+              Consulter
+            </a>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+  </div>
+
+</div>

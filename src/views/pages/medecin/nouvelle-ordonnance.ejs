@@ -1,0 +1,47 @@
+<header class="page-head">
+  <div style="display:flex;align-items:center;gap:var(--s2);">
+    <a class="icon-btn" href="/medecin/patients/<%= patient.id %>" aria-label="Retour au dossier">
+      <span class="icon i-arrow-left" aria-hidden="true"></span>
+    </a>
+    <div>
+      <h1>Rédiger une Ordonnance</h1>
+      <p class="muted small">Pour le patient : <strong><%= patient.nom %></strong></p>
+    </div>
+  </div>
+</header>
+
+<div style="max-width:760px;margin:0 auto;">
+  <div class="card form" style="padding:28px;">
+    
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:var(--s3);padding-bottom:var(--s2);border-bottom:1px solid var(--border);">
+      <span class="rx-badge" style="font-size:32px;">Rx</span>
+      <div>
+        <h2 style="font-size:17px;font-weight:700;">Nouvelle Prescription Médicale</h2>
+        <p class="muted small">L'ordonnance est un document officiel non modifiable après création.</p>
+      </div>
+    </div>
+
+    <form class="form" method="post" action="/medecin/patients/<%= patient.id %>/ordonnances">
+      
+      <div class="field">
+        <label for="diagnostic_associe">Diagnostic associé ou motif de consultation (optionnel)</label>
+        <input id="diagnostic_associe" name="diagnostic_associe" type="text" placeholder="Ex: Rhinopharyngite aiguë, Contrôle de l'hypertension…">
+      </div>
+
+      <div class="field">
+        <label for="contenu">Contenu de la prescription &amp; Posologie <span style="color:var(--danger)">*</span></label>
+        <textarea id="contenu" name="contenu" rows="8" required minlength="5" placeholder="1. Nom du médicament et dosage : posologie et moment de prise&#10;2. Durée du traitement et consignes spécifiques…"></textarea>
+        <small class="muted">Listez les médicaments, leurs posologies, règles d'usage et la durée de validité.</small>
+      </div>
+
+      <div style="display:flex;gap:var(--s2);justify-content:flex-end;margin-top:var(--s3);">
+        <a class="btn btn-outline" href="/medecin/patients/<%= patient.id %>">Annuler</a>
+        <button class="btn btn-primary" type="submit">
+          <span class="icon icon-sm i-check" aria-hidden="true"></span>
+          Émettre et voir l'ordonnance
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

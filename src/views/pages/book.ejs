@@ -1,0 +1,72 @@
+<header class="page-head center">
+  <a class="icon-btn" href="/medecins" aria-label="Retour à la liste"><span class="icon i-arrow-left" aria-hidden="true"></span></a>
+  <h1>Prendre rendez-vous</h1>
+  <span class="icon-btn invisible" aria-hidden="true"></span>
+</header>
+
+<section class="card doc-summary">
+  <span class="avatar avatar-lg <%= avatarClass(doc.id) %>" aria-hidden="true"><%= initials(doc.nom) %></span>
+  <div>
+    <h2><%= doc.nom %></h2>
+    <p class="muted"><%= doc.specialite %></p>
+    <p class="rating"><span class="icon icon-sm i-star" aria-hidden="true"></span><strong><%= Number(doc.note).toFixed(1) %></strong></p>
+  </div>
+</section>
+
+<form class="booking form" method="post" action="/rendez-vous">
+  <input type="hidden" name="medecin_id" value="<%= doc.id %>">
+
+  <section class="step card">
+    <h2 class="step-title"><span class="step-num">1</span>Date et heure</h2>
+    <fieldset>
+      <legend class="group-label">Choisir un jour</legend>
+      <div class="picker">
+        <% days.forEach(function (d, i) { %>
+          <input class="chip-input" type="radio" name="date" id="d-<%= d.iso %>" value="<%= d.iso %>" <%= i === 0 ? 'checked' : '' %>>
+          <label class="day-chip" for="d-<%= d.iso %>"><span><%= d.jour %></span><strong><%= d.num %></strong><span><%= d.mois %></span></label>
+        <% }) %>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend class="group-label">Choisir une heure</legend>
+      <% days.forEach(function (d, i) { %>
+        <div class="slot-grid" data-slots-for="<%= d.iso %>" <%= i === 0 ? '' : 'hidden' %>>
+          <% d.slots.forEach(function (s) { %>
+            <input class="chip-input" type="radio" name="heure" id="h-<%= d.iso %>-<%= s.heure %>" value="<%= s.heure %>" <%= s.dispo ? '' : 'disabled' %>>
+            <label class="slot-chip" for="h-<%= d.iso %>-<%= s.heure %>"><%= s.heure %></label>
+          <% }) %>
+        </div>
+      <% }) %>
+      <small class="field-error" id="slot-error" role="alert"></small>
+    </fieldset>
+  </section>
+
+  <section class="step card">
+    <h2 class="step-title"><span class="step-num">2</span>Motif et type de rendez-vous</h2>
+    <div class="field">
+      <label for="motif">Motif de la visite</label>
+      <input id="motif" name="motif" type="text" required minlength="3" maxlength="200" placeholder="Ex. : Suivi, douleur, renouvellement…">
+      <small class="field-error" data-error-for="motif" role="alert"></small>
+    </div>
+    <fieldset>
+      <legend class="group-label">Type de rendez-vous</legend>
+      <div class="segmented">
+        <input class="chip-input" type="radio" name="type" id="t-cabinet" value="cabinet" checked>
+        <label class="seg" for="t-cabinet"><span class="icon icon-sm i-building" aria-hidden="true"></span>En cabinet</label>
+        <input class="chip-input" type="radio" name="type" id="t-ligne" value="en_ligne">
+        <label class="seg" for="t-ligne"><span class="icon icon-sm i-video" aria-hidden="true"></span>En ligne</label>
+      </div>
+    </fieldset>
+  </section>
+
+  <section class="step card">
+    <h2 class="step-title"><span class="step-num">3</span>Récapitulatif des frais</h2>
+    <div class="summary">
+      <div class="summary-row"><span class="muted">Consultation</span><span><%= money(doc.tarif) %></span></div>
+      <div class="summary-row"><span class="muted">Frais de plateforme</span><span><%= money(frais) %></span></div>
+      <div class="summary-row summary-total"><span>Total</span><span><%= money(total) %></span></div>
+    </div>
+    <p class="muted small">Montants fictifs, à titre de démonstration.</p>
+    <button class="btn btn-block btn-lg" type="submit">Réserver</button>
+  </section>
+</form>

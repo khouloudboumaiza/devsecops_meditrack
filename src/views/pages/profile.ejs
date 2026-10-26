@@ -1,0 +1,29 @@
+<header class="page-head"><h1>Mon profil</h1></header>
+<section class="card doc-summary">
+  <span class="avatar avatar-lg <%= avatarClass(me.id) %>" aria-hidden="true"><%= initials(me.nom) %></span>
+  <div>
+    <h2><%= me.nom %></h2>
+    <p class="muted"><%= me.email %></p>
+    <div style="margin-top:6px;display:flex;gap:6px;align-items:center;">
+      <% if (me.role === 'admin') { %>
+        <span class="badge badge-urgent">Administrateur</span>
+      <% } else if (me.role === 'secretaire') { %>
+        <span class="badge badge-warning">Secrétaire</span>
+        <% if (me.medecin_nom) { %>
+          <span class="badge badge-info">Rattaché(e) au <%= me.medecin_nom %></span>
+        <% } %>
+      <% } else if (me.role === 'medecin') { %>
+        <span class="badge badge-info">Médecin · <%= me.specialite || 'Généraliste' %></span>
+      <% } else { %>
+        <span class="badge badge-success">Patient</span>
+      <% } %>
+      <span class="badge <%= me.actif ? 'badge-success' : 'badge-danger' %>"><%= me.actif ? 'Actif' : 'Désactivé' %></span>
+    </div>
+  </div>
+</section>
+<form method="post" action="/logout" style="margin-top:var(--s3)">
+  <button class="btn btn-outline btn-block" type="submit">
+    <span class="icon icon-sm i-logout" aria-hidden="true"></span>
+    Se déconnecter
+  </button>
+</form>

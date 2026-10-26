@@ -1,0 +1,85 @@
+<header class="page-head">
+  <div>
+    <h1>Mon dossier médical</h1>
+    <p class="muted small">Historique de vos antécédents médicaux, diagnostics et ordonnances</p>
+  </div>
+</header>
+
+<!-- SECTION 1 : HISTORIQUE DES ORDONNANCES INDÉPENDANTES -->
+<section style="margin-bottom:var(--s4);">
+  <div class="section-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--s2);">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="icon i-pill" aria-hidden="true" style="color:var(--primary);"></span>
+      <h2 style="font-size:18px;font-weight:700;">Mes Ordonnances (<%= ordonnances ? ordonnances.length : 0 %>)</h2>
+    </div>
+  </div>
+
+  <% if (ordonnances && ordonnances.length) { %>
+    <div class="list">
+      <% ordonnances.forEach(function (ord) { %>
+        <article class="card" style="display:flex;justify-content:space-between;align-items:center;gap:16px;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="kpi-icon-badge" style="background:rgba(31, 111, 235, 0.1);color:var(--primary);">
+              <span class="rx-badge" style="font-size:22px;line-height:1;">Rx</span>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+                <h3 style="font-size:15px;font-weight:700;"><%= ord.diagnostic_associe || 'Ordonnance médicale' %></h3>
+                <span class="badge badge-info"><%= String(ord.date_creation.toISOString()).slice(0, 10) %></span>
+              </div>
+              <p class="muted small">Délivrée par le <%= ord.medecin_nom %> (<%= ord.medecin_specialite || 'Médecin' %>)</p>
+            </div>
+          </div>
+          <div>
+            <a class="btn btn-outline btn-sm" href="/ordonnances/<%= ord.id %>">
+              <span class="icon icon-sm i-file" aria-hidden="true"></span>
+              Voir l'ordonnance
+            </a>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="card empty">
+      <span class="icon i-pill" aria-hidden="true"></span>
+      <h3>Aucune ordonnance délivrée</h3>
+      <p class="muted">Vos ordonnances officielles apparaîtront ici dès leur émission par votre praticien.</p>
+    </div>
+  <% } %>
+</section>
+
+<!-- SECTION 2 : HISTORIQUE DES ACTES & DIAGNOSTICS DU DOSSIER GÉNÉRAL -->
+<section>
+  <div class="section-head" style="display:flex;align-items:center;gap:10px;margin-bottom:var(--s2);">
+    <span class="icon i-file" aria-hidden="true" style="color:var(--primary);"></span>
+    <h2 style="font-size:18px;font-weight:700;">Historique des Consultations &amp; Diagnostics</h2>
+  </div>
+
+  <% if (records && records.length) { %>
+    <div class="list">
+      <% records.forEach(function (r) { %>
+        <article class="card">
+          <div class="record-title" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 style="font-size:16px;font-weight:700;"><%= r.diagnostic || 'Consultation de suivi' %></h3>
+            <span class="badge badge-info"><%= String(r.created_at.toISOString()).slice(0, 10) %></span>
+          </div>
+          <% if (r.notes) { %>
+            <div class="record-block">
+              <h4><span class="icon icon-sm i-pencil" aria-hidden="true"></span>Notes &amp; Observations</h4>
+              <p class="excerpt muted"><%= (r.notes || '').replace(/\n/g, ' · ') %></p>
+            </div>
+          <% } %>
+          <div class="appt-actions" style="margin-top:12px;">
+            <a class="btn btn-outline btn-sm" href="/records/<%= r.id %>">Détails de la consultation</a>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="card empty">
+      <span class="icon i-file" aria-hidden="true"></span>
+      <h3>Dossier vide</h3>
+      <p class="muted">Aucune consultation consignée pour le moment.</p>
+    </div>
+  <% } %>
+</section>

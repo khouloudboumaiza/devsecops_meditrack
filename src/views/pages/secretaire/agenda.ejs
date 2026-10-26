@@ -1,0 +1,202 @@
+<!-- Espace Secrétaire : Tableau de bord & Agenda -->
+<header class="dash-topbar">
+  <div>
+    <h1>Agenda du Secrétariat</h1>
+    <p class="muted">Gestionnaire d'agenda rattaché au <strong><%= doc.nom %></strong> (<%= doc.specialite %>)</p>
+  </div>
+  <div class="dash-actions">
+    <a class="btn btn-pill" href="/secretaire/nouveau-rdv">
+      <span class="icon icon-sm i-plus" aria-hidden="true"></span>
+      Nouveau rendez-vous
+    </a>
+  </div>
+</header>
+
+<!-- Bande des 4 KPI (comme dans la capture) -->
+<section class="dash-kpi-grid" aria-label="Statistiques de l'agenda">
+  <div class="dash-kpi-card">
+    <div>
+      <span class="kpi-num"><%= stats.aujourdhui %></span>
+      <span class="kpi-label">Rendez-vous du jour</span>
+    </div>
+    <div class="kpi-icon-badge">
+      <span class="icon i-calendar" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  <div class="dash-kpi-card">
+    <div>
+      <span class="kpi-num"><%= stats.semaine %></span>
+      <span class="kpi-label">À venir (7 jours)</span>
+    </div>
+    <div class="kpi-icon-badge">
+      <span class="icon i-clock" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  <div class="dash-kpi-card">
+    <div>
+      <span class="kpi-num"><%= stats.total_patients %></span>
+      <span class="kpi-label">Patients suivis</span>
+    </div>
+    <div class="kpi-icon-badge">
+      <span class="icon i-users" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  <div class="dash-kpi-card">
+    <div>
+      <span class="kpi-num"><%= stats.termines %></span>
+      <span class="kpi-label">Consultations finies</span>
+    </div>
+    <div class="kpi-icon-badge">
+      <span class="icon i-check" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<!-- Grille centrale à 2 colonnes (calquée sur la capture) -->
+<div class="dash-main-grid">
+
+  <!-- Colonne Gauche : Rendez-vous du jour + Actions rapides -->
+  <div class="dash-col">
+    <div class="card">
+      <div class="section-head">
+        <h2>Rendez-vous aujourd'hui</h2>
+        <span class="badge badge-info"><%= todayAppts.length %> créneau(x)</span>
+      </div>
+
+      <% if (todayAppts.length) { %>
+        <div class="dash-appt-list">
+          <% todayAppts.forEach(function (a) { %>
+            <div class="dash-appt-item">
+              <span class="avatar <%= avatarClass(a.patient_id) %>"><%= initials(a.patient_nom) %></span>
+              <div class="appt-info">
+                <strong><%= a.patient_nom %></strong>
+                <span class="muted small"><%= a.heure %> · <%= typeLabel(a.type) %></span>
+                <span class="small" style="color:var(--text)"><%= a.motif %></span>
+              </div>
+              <span class="badge <%= badgeClass(a.statut) %>"><%= statutLabel(a.statut) %></span>
+
+              <!-- Boutons circulaires d'action (Valider / Annuler comme sur la capture) -->
+              <div class="appt-circle-actions">
+                <% if (a.statut !== 'confirme') { %>
+                  <form method="post" action="/secretaire/rendez-vous/<%= a.id %>/statut" style="display:inline">
+                    <input type="hidden" name="statut" value="confirme">
+                    <button class="circle-btn circle-btn-success" type="submit" title="Confirmer le rendez-vous">
+                      <span class="icon icon-sm i-check"></span>
+                    </button>
+                  </form>
+                <% } %>
+
+                <% if (a.statut !== 'termine') { %>
+                  <form method="post" action="/secretaire/rendez-vous/<%= a.id %>/statut" style="display:inline">
+                    <input type="hidden" name="statut" value="termine">
+                    <button class="circle-btn circle-btn-info" type="submit" title="Marquer comme terminé">
+                      <span class="icon icon-sm i-sliders"></span>
+                    </button>
+                  </form>
+                <% } %>
+
+                <% if (a.statut !== 'annule') { %>
+                  <form method="post" action="/secretaire/rendez-vous/<%= a.id %>/statut" data-confirm="Annuler ce rendez-vous ?" style="display:inline">
+                    <input type="hidden" name="statut" value="annule">
+                    <button class="circle-btn circle-btn-danger" type="submit" title="Annuler le rendez-vous">
+                      <span class="icon icon-sm i-x"></span>
+                    </button>
+                  </form>
+                <% } %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty">
+          <span class="icon i-calendar" aria-hidden="true"></span>
+          <p class="muted">Aucun rendez-vous prévu pour aujourd'hui.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Colonne Droite : Fiche du Médecin Référent + Agenda des 7 jours -->
+  <div class="dash-col">
+    <!-- Carte Médecin Rattaché (style "Best Doctor" de la capture) -->
+    <div class="doctor-highlight-card">
+      <div class="doc-badge-pill">Médecin Référent</div>
+      <div class="doc-highlight-body">
+        <span class="avatar avatar-xl av-0" style="margin-bottom:8px;"><%= initials(doc.nom) %></span>
+        <h3><%= doc.nom %></h3>
+        <p><%= doc.specialite %> · <%= doc.email %></p>
+        <div class="doc-stats-row">
+          <div class="doc-stat-box">
+            <strong><%= Number(doc.note).toFixed(1) %> / 5</strong>
+            <small>Note</small>
+          </div>
+          <div class="doc-stat-box">
+            <strong><%= money(doc.tarif) %></strong>
+            <small>Tarif</small>
+          </div>
+          <div class="doc-stat-box">
+            <strong><%= stats.total_patients %></strong>
+            <small>Patients</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Planning des 7 prochains jours -->
+    <div class="card" style="margin-top:var(--s3);">
+      <div class="section-head">
+        <h2>Planning de la semaine</h2>
+        <div class="chips" style="padding-bottom:0">
+          <a class="chip <%= filterStatut === 'tous' ? 'active' : '' %>" href="/secretaire?statut=tous">Tous</a>
+          <a class="chip <%= filterStatut === 'confirme' ? 'active' : '' %>" href="/secretaire?statut=confirme">Confirmés</a>
+          <a class="chip <%= filterStatut === 'annule' ? 'active' : '' %>" href="/secretaire?statut=annule">Annulés</a>
+        </div>
+      </div>
+
+      <% if (weekAppts.length) { %>
+        <div class="dash-appt-list">
+          <% weekAppts.forEach(function (a) { %>
+            <div class="dash-appt-item">
+              <div>
+                <strong><%= a.patient_nom %></strong>
+                <div class="muted small">
+                  <span class="icon icon-sm i-calendar" style="vertical-align:middle"></span> <%= fmtDate(a.date) %> à <strong><%= a.heure %></strong>
+                </div>
+                <div class="small muted"><%= a.motif %> (<%= typeLabel(a.type) %>)</div>
+              </div>
+              <span class="badge <%= badgeClass(a.statut) %>"><%= statutLabel(a.statut) %></span>
+
+              <!-- Formulaire de reprogrammation rapide -->
+              <details class="reschedule-details">
+                <summary class="btn btn-outline btn-sm">Reprogrammer</summary>
+                <form class="form" method="post" action="/secretaire/rendez-vous/<%= a.id %>/reprogrammer" style="margin-top:8px;padding:12px;background:var(--bg);border-radius:10px;">
+                  <div class="field">
+                    <label class="small" for="d-<%= a.id %>">Nouvelle date</label>
+                    <input id="d-<%= a.id %>" name="date" type="date" value="<%= a.date %>" required>
+                  </div>
+                  <div class="field">
+                    <label class="small" for="h-<%= a.id %>">Nouveau créneau</label>
+                    <select id="h-<%= a.id %>" name="heure" required>
+                      <% creneaux.forEach(function (h) { %>
+                        <option value="<%= h %>" <%= h === a.heure ? 'selected' : '' %>><%= h %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                  <button class="btn btn-sm btn-block" type="submit">Valider</button>
+                </form>
+              </details>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty">
+          <p class="muted">Aucun rendez-vous sur cette période avec ce filtre.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+</div>

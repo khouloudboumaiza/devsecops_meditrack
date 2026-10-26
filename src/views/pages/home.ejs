@@ -1,0 +1,546 @@
+<%# Page d'accueil publique – layout : public.ejs %>
+<%# Popup auth géré par public/js/auth-modal.js %>
+
+<!-- ===== NAVBAR ===== -->
+<header class="lp-header" role="banner">
+  <div class="lp-header-in">
+    <a class="brand" href="/" aria-label="MediTrack – Accueil">
+      <img src="/icons/logo.svg" alt="" width="38" height="38" aria-hidden="true">
+      <span>MediTrack</span>
+    </a>
+
+    <nav class="lp-nav" aria-label="Navigation principale">
+      <a href="/" class="active">Accueil</a>
+      <a href="#a-propos">À propos</a>
+      <a href="#services">Services</a>
+      <a href="#medecins">Médecins</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="lp-header-right">
+      
+
+      <div class="lp-header-actions">
+        <button class="btn btn-outline btn-pill btn-sm" data-modal-trigger="auth" data-tab="login" aria-haspopup="dialog">
+          Connexion
+        </button>
+        <button class="btn btn-primary btn-pill btn-sm lp-hide-sm" data-modal-trigger="auth" data-tab="register" aria-haspopup="dialog">
+          Prendre rendez-vous
+        </button>
+        <button class="burger" id="burger-btn" aria-controls="mobile-menu" aria-expanded="false" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu mobile -->
+  <nav class="mobile-menu" id="mobile-menu" aria-label="Menu mobile" hidden>
+    <a href="/">Accueil</a>
+    <a href="#a-propos">À propos</a>
+    <a href="#services">Services</a>
+    <a href="#medecins">Médecins</a>
+    <a href="#contact">Contact</a>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+      <button class="btn btn-outline btn-pill btn-block" data-modal-trigger="auth" data-tab="login">Connexion</button>
+      <button class="btn btn-primary btn-pill btn-block" data-modal-trigger="auth" data-tab="register">Prendre rendez-vous</button>
+    </div>
+  </nav>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="lp-container lp-hero" id="hero" aria-label="Section principale">
+
+  <!-- Texte gauche -->
+  <div class="lp-hero-text">
+    <div class="hero-eyebrow">
+      <span class="badge badge-info">
+        <span class="icon icon-sm i-stethoscope" aria-hidden="true"></span>
+        Votre santé, notre priorité
+      </span>
+    </div>
+
+    <h1>
+      Nous sommes là pour vous garder<br>
+      <span class="blue">en bonne santé</span> et heureux
+    </h1>
+
+    <p class="lp-lead">
+      Consultez des médecins expérimentés, prenez des rendez-vous en quelques clics
+      et accédez à votre dossier médical en toute sécurité.
+    </p>
+
+    <div class="lp-cta-row">
+      <button class="btn btn-lg btn-pill" data-modal-trigger="auth" data-tab="register">
+        <span class="icon i-calendar" aria-hidden="true"></span>
+        Prendre rendez-vous
+      </button>
+      <a class="btn btn-lg btn-outline btn-pill" href="#a-propos">En savoir plus</a>
+    </div>
+
+    <!-- Badge urgences -->
+    <div class="hero-trust">
+      <div class="hero-trust-badge">
+        <span class="icon i-shield" aria-hidden="true" style="color:var(--danger)"></span>
+        <div>
+          <strong>Urgences 24h/24</strong>
+          <small>Service disponible</small>
+        </div>
+      </div>
+      <div class="hero-trust-badge">
+        <div class="hero-trust-stars" aria-label="5 étoiles">
+          <span class="icon i-star" aria-hidden="true"></span>
+          <span class="icon i-star" aria-hidden="true"></span>
+          <span class="icon i-star" aria-hidden="true"></span>
+          <span class="icon i-star" aria-hidden="true"></span>
+          <span class="icon i-star" aria-hidden="true"></span>
+        </div>
+        <div>
+          <strong>98 000+</strong>
+          <small>patients satisfaits</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image héro + décorations -->
+  <div class="lp-hero-visual" aria-hidden="true">
+    <!-- Formes décoratives -->
+    <div class="hero-circle-bg"></div>
+    <div class="hero-circle-sm c1"></div>
+    <div class="hero-circle-sm c2"></div>
+    <span class="hero-deco-plus p1">+</span>
+    <span class="hero-deco-plus p2">+</span>
+
+    <!-- Badge urgences flottant -->
+    <div class="hero-badge-float">
+      <strong>
+        <span class="icon icon-sm i-shield" style="color:#fff;vertical-align:middle;display:inline-block"></span>
+        Urgences 24h/24
+      </strong>
+      <small>Toujours disponible</small>
+    </div>
+
+    <!-- Badge confiance flottant -->
+    <div class="hero-badge-trust">
+      <strong>98 000+</strong>
+      <div class="stars">
+        <span class="icon i-star"></span>
+        <span class="icon i-star"></span>
+        <span class="icon i-star"></span>
+        <span class="icon i-star"></span>
+        <span class="icon i-star"></span>
+      </div>
+      <small>patients satisfaits</small>
+    </div>
+
+    <!-- Image principale -->
+    <div class="hero-img-wrap">
+      <img src="/images/medi.jpg" alt="Professionnel de santé MediTrack" width="360" height="360" loading="eager">
+    </div>
+  </div>
+</section>
+
+<!-- ===== BANDE 4 AVANTAGES ===== -->
+<section class="lp-container lp-section-sm" aria-label="Nos avantages">
+  <div class="advantages-band">
+    <div class="advantages-grid">
+      <div class="adv-item">
+        <div class="adv-icon">
+          <span class="icon icon-lg i-users" aria-hidden="true"></span>
+        </div>
+        <h3>Médecins experts</h3>
+        <p>Une équipe de praticiens expérimentés et qualifiés dans leur domaine.</p>
+      </div>
+      <div class="adv-item">
+        <div class="adv-icon">
+          <span class="icon icon-lg i-building" aria-hidden="true"></span>
+        </div>
+        <h3>Installations modernes</h3>
+        <p>Des équipements de pointe pour des diagnostics précis et fiables.</p>
+      </div>
+      <div class="adv-item">
+        <div class="adv-icon">
+          <span class="icon icon-lg i-clock" aria-hidden="true"></span>
+        </div>
+        <h3>Service rapide</h3>
+        <p>Réservation en moins de 2 minutes, rendez-vous confirmé immédiatement.</p>
+      </div>
+      <div class="adv-item">
+        <div class="adv-icon">
+          <span class="icon icon-lg i-heart" aria-hidden="true"></span>
+        </div>
+        <h3>Patient d'abord</h3>
+        <p>Votre confort et votre satisfaction sont au cœur de notre démarche.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== À PROPOS ===== -->
+<section class="lp-container lp-section" id="a-propos" aria-label="À propos de MediTrack">
+  <div class="about-grid">
+    <!-- Image -->
+    <div class="about-img-col">
+      <div class="about-img-wrap">
+        <img src="/images/medi.jpg" alt="Équipe médicale MediTrack" loading="lazy">
+      </div>
+      <div class="about-stat-float" aria-label="98 000 patients suivis">
+        <strong>98 000+</strong>
+        <small>Patients suivis</small>
+      </div>
+    </div>
+
+    <!-- Texte + cartes -->
+    <div>
+      <div class="lp-head" style="margin-bottom:var(--s3)">
+        <p class="lp-label">À propos de nous</p>
+        <h2>Des soins fiables avec une technologie moderne</h2>
+        <p class="muted" style="font-size:16px;line-height:1.7">
+          Nous combinons technologies avancées et soins personnalisés pour vous offrir le meilleur suivi médical.
+          Notre équipe est dédiée à soutenir votre bien-être à chaque étape de votre vie.
+        </p>
+      </div>
+
+      <div class="about-cards">
+        <div class="about-card">
+          <div class="about-card-icon">
+            <span class="icon i-microscope" aria-hidden="true"></span>
+          </div>
+          <div>
+            <h3>Diagnostics avancés</h3>
+            <p>Des équipements d'imagerie et d'analyses de pointe pour des résultats précis et rapides.</p>
+          </div>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">
+            <span class="icon i-heart" aria-hidden="true"></span>
+          </div>
+          <div>
+            <h3>Traitements personnalisés</h3>
+            <p>Des protocoles médicaux adaptés à votre profil et à vos antécédents pour une prise en charge optimale.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== NOS SERVICES ===== -->
+<section class="lp-section" id="services" style="background:var(--primary-soft)" aria-label="Nos services">
+  <div class="lp-container">
+    <div class="lp-head lp-center" style="margin-bottom:var(--s4)">
+      <p class="lp-label">Nos services</p>
+      <h2>Services de laboratoire fiables et de haute qualité</h2>
+      <p class="muted" style="max-width:540px">
+        Découvrez l'ensemble de nos prestations médicales, réalisées par des spécialistes certifiés.
+      </p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon"><span class="icon i-droplet" aria-hidden="true"></span></div>
+        <h3>Analyse de sang</h3>
+        <p>Bilan sanguin complet, hémogramme, glycémie, bilan lipidique.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon"><span class="icon i-microscope" aria-hidden="true"></span></div>
+        <h3>Pathologie</h3>
+        <p>Analyse tissulaire, biopsies, examens anatomopathologiques.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon"><span class="icon i-flask" aria-hidden="true"></span></div>
+        <h3>Analyse d'urine</h3>
+        <p>Examen cytobactériologique, dosages biochimiques urinaires.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon"><span class="icon i-activity" aria-hidden="true"></span></div>
+        <h3>Analyse hormonale</h3>
+        <p>Thyroïde, cortisol, insuline, hormones reproductives.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon"><span class="icon i-shield" aria-hidden="true"></span></div>
+        <h3>Tests allergiques</h3>
+        <p>Prick-tests, IgE spécifiques, bilan allergologique complet.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon"><span class="icon i-virus" aria-hidden="true"></span></div>
+        <h3>COVID-19 &amp; Virologie</h3>
+        <p>Tests PCR, sérologies, dépistage virologique rapide.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== NOS MÉDECINS ===== -->
+<section class="lp-container lp-section" id="medecins" aria-label="Nos médecins">
+  <div class="lp-head lp-center" style="margin-bottom:var(--s4)">
+    <p class="lp-label">Notre équipe</p>
+    <h2>Nos médecins les mieux notés</h2>
+    <p class="muted" style="max-width:480px">
+      Des praticiens qualifiés, disponibles pour prendre soin de vous.
+    </p>
+  </div>
+  <div class="lp-doc-grid">
+    <% best.forEach(function(d) { %>
+    <article class="lp-doc-card">
+      <div class="lp-doc-top">
+        <span class="avatar avatar-lg <%= avatarClass(d.id) %>" aria-label="Avatar de <%= d.nom %>">
+          <%= initials(d.nom) %>
+        </span>
+      </div>
+      <div class="lp-doc-body">
+        <h3><%= d.nom %></h3>
+        <p class="lp-doc-spec"><%= d.specialite %></p>
+        <div class="lp-doc-rating">
+          <span class="icon i-star" aria-hidden="true"></span>
+          <strong><%= Number(d.note).toFixed(1) %></strong>
+          <span class="muted small">note</span>
+          <span class="lp-doc-rating price"><%= money(d.tarif) %></span>
+        </div>
+        <button class="btn btn-sm btn-block" data-modal-trigger="auth" data-tab="register">
+          Prendre rendez-vous
+        </button>
+      </div>
+    </article>
+    <% }) %>
+  </div>
+</section>
+
+<!-- ===== TÉMOIGNAGES ===== -->
+<section class="lp-section" style="background:var(--bg)" aria-label="Témoignages patients">
+  <div class="lp-container">
+    <div class="lp-head lp-center" style="margin-bottom:var(--s4)">
+      <p class="lp-label">Témoignages</p>
+      <h2>Ce que disent nos patients</h2>
+      <p class="muted small">Témoignages fictifs à des fins de démonstration</p>
+    </div>
+    <div class="testimonials-grid">
+      <%
+        var testimonials = [
+          { name: 'Amine R.', init: 'AR', av: 0, role: 'Patient', text: 'J\'ai trouvé un cardiologue disponible dès le lendemain. La réservation a pris moins de deux minutes. Interface parfaite !' },
+          { name: 'Salma G.', init: 'SG', av: 1, role: 'Patiente', text: 'Le dossier médical en ligne est très pratique : mes ordonnances sont toujours à portée de main. Je recommande.' },
+          { name: 'Karim B.', init: 'KB', av: 2, role: 'Patient', text: 'La consultation en ligne m\'a évité un déplacement. Interface claire, médecin réactif. Très satisfait.' }
+        ];
+        testimonials.forEach(function(t) {
+      %>
+      <article class="testimonial-card">
+        <div class="testimonial-stars" aria-label="Note : 5 étoiles">
+          <span class="icon i-star" aria-hidden="true"></span>
+          <span class="icon i-star" aria-hidden="true"></span>
+          <span class="icon i-star" aria-hidden="true"></span>
+          <span class="icon i-star" aria-hidden="true"></span>
+          <span class="icon i-star" aria-hidden="true"></span>
+        </div>
+        <p class="testimonial-text">« <%= t.text %> »</p>
+        <div class="testimonial-author">
+          <span class="avatar av-<%= t.av %>" aria-hidden="true"><%= t.init %></span>
+          <div>
+            <strong><%= t.name %></strong>
+            <small><%= t.role %></small>
+          </div>
+        </div>
+      </article>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section class="lp-container lp-section" id="contact" aria-label="Nous contacter">
+  <div class="lp-head lp-center" style="margin-bottom:var(--s4)">
+    <p class="lp-label">Contact</p>
+    <h2>Prenez contact avec nous</h2>
+  </div>
+  <div class="contact-grid">
+    <!-- Infos -->
+    <div class="contact-info">
+      <div class="contact-item">
+        <div class="contact-item-icon"><span class="icon i-map-pin" aria-hidden="true"></span></div>
+        <div>
+          <h4>Adresse</h4>
+          <p>14, Rue de la Clinique, Tunis 1002 (fictif)</p>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-item-icon"><span class="icon i-phone" aria-hidden="true"></span></div>
+        <div>
+          <h4>Téléphone</h4>
+          <p>+216 70 123 456 (fictif)</p>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-item-icon"><span class="icon i-mail" aria-hidden="true"></span></div>
+        <div>
+          <h4>E-mail</h4>
+          <p>contact@meditrack.test (fictif)</p>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-item-icon"><span class="icon i-clock" aria-hidden="true"></span></div>
+        <div>
+          <h4>Horaires</h4>
+          <p>Lun – Ven : 8h – 18h · Urgences 24h/24</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulaire (envoi fictif) -->
+    <div class="contact-form">
+      <h3>Envoyer un message</h3>
+      <form class="form" id="contact-form" novalidate>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)">
+          <div class="field">
+            <label for="c-name">Nom</label>
+            <input id="c-name" type="text" placeholder="Votre nom" required>
+            <small class="field-error" data-error-for="c-name"></small>
+          </div>
+          <div class="field">
+            <label for="c-email">E-mail</label>
+            <input id="c-email" type="email" placeholder="vous@exemple.com" required>
+            <small class="field-error" data-error-for="c-email"></small>
+          </div>
+        </div>
+        <div class="field">
+          <label for="c-subject">Sujet</label>
+          <input id="c-subject" type="text" placeholder="Objet de votre message">
+        </div>
+        <div class="field">
+          <label for="c-msg">Message</label>
+          <textarea id="c-msg" rows="4" placeholder="Votre message…" required></textarea>
+          <small class="field-error" data-error-for="c-msg"></small>
+        </div>
+        <button class="btn btn-block" type="button" id="contact-submit">Envoyer le message</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA FINAL ===== -->
+<section class="lp-container" style="padding-bottom:var(--s5)">
+  <div class="lp-cta">
+    <h2>Prêt à prendre soin de votre santé dès aujourd'hui ?</h2>
+    <p>Créez votre compte patient gratuitement et réservez votre premier rendez-vous en quelques clics.</p>
+    <button class="btn btn-lg btn-white" data-modal-trigger="auth" data-tab="register">
+      Créer mon compte patient
+    </button>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="lp-footer" role="contentinfo">
+  <div class="lp-container">
+    <div class="lp-footer-in">
+      <div>
+        <a class="brand" href="/">
+          <img src="/icons/logo.svg" alt="" width="32" height="32">
+          MediTrack
+        </a>
+        <p class="lp-footer-desc">
+          Plateforme de prise de rendez-vous médicaux.
+          Projet universitaire DevSecOps — toutes les données sont fictives.
+        </p>
+      </div>
+      <nav class="lp-footer-col" aria-label="Navigation rapide">
+        <h4>Navigation</h4>
+        <a href="/">Accueil</a>
+        <a href="#a-propos">À propos</a>
+        <a href="#services">Services</a>
+        <a href="#medecins">Médecins</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <nav class="lp-footer-col" aria-label="Accès compte">
+        <h4>Mon compte</h4>
+        <a href="#" data-modal-trigger="auth" data-tab="login">Connexion</a>
+        <a href="#" data-modal-trigger="auth" data-tab="register">Inscription patient</a>
+      </nav>
+      <div class="lp-footer-col">
+        <h4>Contact</h4>
+        <p style="font-size:14px;color:#8EA5BF;margin-bottom:8px">+216 70 123 456</p>
+        <p style="font-size:14px;color:#8EA5BF;margin-bottom:8px">contact@meditrack.test</p>
+        <p style="font-size:14px;color:#8EA5BF">Tunis, Tunisie (fictif)</p>
+      </div>
+    </div>
+    <div class="lp-footer-bottom">
+      <span>© 2026 MediTrack · Projet universitaire DevSecOps</span>
+      <span>Données 100 % fictives · Ne pas utiliser en production</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== POPUP AUTH ===== -->
+<div class="modal-overlay" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" hidden>
+  <div class="modal" id="auth-dialog">
+    <div class="modal-header">
+      <h2 id="auth-modal-title">Connexion</h2>
+      <button class="modal-close" id="modal-close-btn" aria-label="Fermer">
+        <span class="icon i-x" aria-hidden="true"></span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Onglets -->
+      <div class="modal-tabs" role="tablist">
+        <button class="modal-tab active" role="tab" id="tab-login" aria-selected="true" aria-controls="panel-login">
+          Connexion
+        </button>
+        <button class="modal-tab" role="tab" id="tab-register" aria-selected="false" aria-controls="panel-register">
+          Inscription
+        </button>
+      </div>
+
+      <!-- Panneau Connexion -->
+      <div class="modal-panel active" id="panel-login" role="tabpanel" aria-labelledby="tab-login">
+        <div class="alert alert-error" id="login-error" hidden role="alert"></div>
+        <form class="form" id="login-form" novalidate>
+          <div class="field">
+            <label for="login-email">Adresse e-mail</label>
+            <input id="login-email" name="email" type="email" required autocomplete="email" placeholder="vous@exemple.com">
+            <small class="field-error" data-error-for="login-email" role="alert"></small>
+          </div>
+          <div class="field">
+            <label for="login-password">Mot de passe</label>
+            <input id="login-password" name="password" type="password" required autocomplete="current-password" placeholder="••••••••">
+            <small class="field-error" data-error-for="login-password" role="alert"></small>
+          </div>
+          <button class="btn btn-block" type="submit" id="login-btn">Se connecter</button>
+        </form>
+        <div class="demo-box" style="margin-top:var(--s1)">
+          <strong>Comptes de test :</strong><br>
+          patient1@meditrack.test — medecin1@meditrack.test<br>
+          Mot de passe : <strong>Password123!</strong>
+        </div>
+      </div>
+
+      <!-- Panneau Inscription -->
+      <div class="modal-panel" id="panel-register" role="tabpanel" aria-labelledby="tab-register" hidden>
+        <div class="alert alert-error" id="register-error" hidden role="alert"></div>
+        <form class="form" id="register-form" novalidate>
+          <div class="field">
+            <label for="reg-name">Nom complet</label>
+            <input id="reg-name" name="nom" type="text" required minlength="2" maxlength="100" autocomplete="name" placeholder="Prénom Nom">
+            <small class="field-error" data-error-for="reg-name" role="alert"></small>
+          </div>
+          <div class="field">
+            <label for="reg-email">Adresse e-mail</label>
+            <input id="reg-email" name="email" type="email" required autocomplete="email" placeholder="vous@exemple.com">
+            <small class="field-error" data-error-for="reg-email" role="alert"></small>
+          </div>
+          <div class="field">
+            <label for="reg-password">Mot de passe</label>
+            <input id="reg-password" name="password" type="password" required minlength="8" autocomplete="new-password" placeholder="8 caractères minimum">
+            <small class="field-error" data-error-for="reg-password" role="alert"></small>
+          </div>
+          <div class="field">
+            <label for="reg-confirm">Confirmer le mot de passe</label>
+            <input id="reg-confirm" name="confirm" type="password" required autocomplete="new-password" placeholder="••••••••" data-match="reg-password">
+            <small class="field-error" data-error-for="reg-confirm" role="alert"></small>
+          </div>
+          <button class="btn btn-block" type="submit" id="register-btn">Créer mon compte</button>
+        </form>
+      </div>
+
+      <p class="modal-footer-link">
+        <a href="#" id="switch-tab-link">Pas encore inscrit ? Créer un compte</a>
+      </p>
+    </div>
+  </div>
+</div>

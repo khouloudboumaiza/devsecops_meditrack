@@ -1,0 +1,176 @@
+<!-- Dashboard Administrateur (style Hospital App) -->
+<header class="dash-topbar">
+  <div>
+    <h1>Tableau de bord Administrateur</h1>
+    <p class="muted">Vue globale sur les activités, le personnel médical et les patients de la clinique.</p>
+  </div>
+  <div class="dash-actions">
+    <a class="btn btn-pill" href="/admin/utilisateurs">
+      <span class="icon icon-sm i-users" aria-hidden="true"></span>
+      Gérer les utilisateurs
+    </a>
+  </div>
+</header>
+
+<!-- 4 KPI Cards (calquées sur la capture : 45 New Patient, 23 Our Doctor, 14 Operation, $5728 Income) -->
+<section class="dash-kpi-grid" aria-label="Statistiques globales">
+  <div class="dash-kpi-card">
+    <div>
+      <span class="kpi-num"><%= kpi.total_patients %></span>
+      <span class="kpi-label">Patients enregistrés</span>
+    </div>
+    <div class="kpi-icon-badge">
+      <span class="icon i-user" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  <div class="dash-kpi-card">
+    <div>
+      <span class="kpi-num"><%= kpi.total_medecins %></span>
+      <span class="kpi-label">Médecins actifs</span>
+    </div>
+    <div class="kpi-icon-badge">
+      <span class="icon i-stethoscope" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  <div class="dash-kpi-card">
+    <div>
+      <span class="kpi-num"><%= kpi.total_secretaires %></span>
+      <span class="kpi-label">Secrétaires</span>
+    </div>
+    <div class="kpi-icon-badge">
+      <span class="icon i-users" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  <div class="dash-kpi-card">
+    <div>
+      <span class="kpi-num"><%= kpi.total_rdv %></span>
+      <span class="kpi-label">Rendez-vous totaux</span>
+    </div>
+    <div class="kpi-icon-badge">
+      <span class="icon i-calendar" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<!-- Grille centrale à 2 colonnes (calquée sur la capture) -->
+<div class="dash-main-grid">
+
+  <!-- Colonne Gauche : Courbe d'activité + Demandes récentes -->
+  <div class="dash-col">
+
+    <!-- Graphique d'activité SVG (Courbe douce bleue style capture) -->
+    <div class="card">
+      <div class="section-head">
+        <div>
+          <h2>Activité des consultations</h2>
+          <span class="muted small">Évolution annuelle des rendez-vous</span>
+        </div>
+        <span class="badge badge-info">Année en cours</span>
+      </div>
+
+      <div class="dash-chart-wrap" aria-label="Graphique des consultations">
+        <svg viewBox="0 0 500 160" class="activity-svg" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="gradCurve" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#1F6FEB" stop-opacity="0.25" />
+              <stop offset="100%" stop-color="#1F6FEB" stop-opacity="0.0" />
+            </linearGradient>
+          </defs>
+          <!-- Lignes horizontales de repère -->
+          <line x1="0" y1="40" x2="500" y2="40" stroke="#E2EDF9" stroke-dasharray="4" />
+          <line x1="0" y1="80" x2="500" y2="80" stroke="#E2EDF9" stroke-dasharray="4" />
+          <line x1="0" y1="120" x2="500" y2="120" stroke="#E2EDF9" stroke-dasharray="4" />
+
+          <!-- Aire sous courbe -->
+          <path d="M 0 110 C 60 70, 110 50, 170 80 C 230 110, 280 40, 350 30 C 420 20, 460 70, 500 60 L 500 160 L 0 160 Z" fill="url(#gradCurve)" />
+          <!-- Courbe principale bleue -->
+          <path d="M 0 110 C 60 70, 110 50, 170 80 C 230 110, 280 40, 350 30 C 420 20, 460 70, 500 60" fill="none" stroke="#1F6FEB" stroke-width="3" stroke-linecap="round" />
+          <!-- Seconde courbe cyan -->
+          <path d="M 0 130 C 70 120, 140 100, 210 115 C 280 130, 350 85, 420 90 C 460 95, 480 105, 500 100" fill="none" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-dasharray="2" />
+
+          <!-- Point actif (comme le point 135 Jul 2026 dans la capture) -->
+          <circle cx="350" cy="30" r="5" fill="#1F6FEB" stroke="#fff" stroke-width="2" />
+        </svg>
+        <div class="chart-months">
+          <span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Juin</span>
+          <span>Juil</span><span>Août</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Déc</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Derniers rendez-vous / Demandes -->
+    <div class="card" style="margin-top:var(--s3);">
+      <div class="section-head">
+        <h2>Derniers rendez-vous enregistrés</h2>
+        <a class="small" href="/admin/utilisateurs">Voir tous les utilisateurs</a>
+      </div>
+
+      <div class="dash-appt-list">
+        <% recentAppts.forEach(function (a) { %>
+          <div class="dash-appt-item">
+            <span class="avatar <%= avatarClass(a.patient_id) %>"><%= initials(a.patient_nom) %></span>
+            <div class="appt-info">
+              <strong><%= a.patient_nom %></strong>
+              <span class="muted small"><%= a.medecin_nom %> (<%= a.specialite %>)</span>
+              <span class="small" style="color:var(--text)"><%= fmtDate(a.date) %> à <%= a.heure %></span>
+            </div>
+            <span class="badge <%= badgeClass(a.statut) %>"><%= statutLabel(a.statut) %></span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Colonne Droite : Carte "Best Doctor" + Liens de supervision -->
+  <div class="dash-col">
+
+    <% if (topDoctor) { %>
+      <!-- Carte Best Doctor (fond bleu vibrant style capture) -->
+      <div class="doctor-highlight-card">
+        <div class="doc-badge-pill">Praticien le plus sollicité</div>
+        <div class="doc-highlight-body">
+          <span class="avatar avatar-xl av-0" style="margin-bottom:8px;"><%= initials(topDoctor.nom) %></span>
+          <h3><%= topDoctor.nom %></h3>
+          <p><%= topDoctor.specialite %> · MediTrack</p>
+          <div class="doc-stats-row">
+            <div class="doc-stat-box">
+              <strong><%= Number(topDoctor.note).toFixed(1) %> / 5</strong>
+              <small>Évaluation</small>
+            </div>
+            <div class="doc-stat-box">
+              <strong><%= topDoctor.total_rdv %></strong>
+              <small>RDV total</small>
+            </div>
+            <div class="doc-stat-box">
+              <strong><%= money(topDoctor.tarif) %></strong>
+              <small>Tarif</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Actions rapides Administrateur -->
+    <div class="card" style="margin-top:var(--s3)">
+      <div class="section-head">
+        <h2>Actions d'Administration</h2>
+      </div>
+      <div style="display:grid;gap:var(--s2)">
+        <a class="btn btn-outline btn-block" href="/admin/utilisateurs">
+          <span class="icon icon-sm i-users"></span>
+          Superviser les comptes &amp; Statuts
+        </a>
+        <a class="btn btn-block" href="/admin/utilisateurs#creer-medecin">
+          <span class="icon icon-sm i-plus"></span>
+          Ajouter un Médecin ou Secrétaire
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+</div>

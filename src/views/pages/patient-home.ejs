@@ -1,0 +1,32 @@
+<header class="greeting">
+  <span class="avatar <%= avatarClass(user.id) %>" aria-hidden="true"><%= initials(user.nom) %></span>
+  <div class="greeting-text"><small>Bonjour,</small><strong><%= user.nom %></strong></div>
+  <a class="icon-btn" href="/rendez-vous" aria-label="Mes rendez-vous"><span class="icon i-bell" aria-hidden="true"></span></a>
+</header>
+
+<form class="search" method="get" action="/medecins" role="search">
+  <div class="search-field">
+    <span class="icon i-search" aria-hidden="true"></span>
+    <label class="sr-only" for="q">Rechercher un médecin</label>
+    <input id="q" name="q" type="search" placeholder="Rechercher un médecin ou une spécialité">
+  </div>
+  <a class="icon-btn icon-btn-primary" href="/medecins" aria-label="Tous les médecins et filtres"><span class="icon i-sliders" aria-hidden="true"></span></a>
+</form>
+
+<section aria-labelledby="cat-title">
+  <div class="section-head"><h2 id="cat-title">Spécialités</h2><a href="/medecins">Voir tout</a></div>
+  <div class="cat-grid">
+    <% SPECIALITES.forEach(function (s) { %>
+      <a class="cat" href="/medecins?specialite=<%= encodeURIComponent(s.nom) %>">
+        <span class="cat-icon"><span class="icon i-<%= s.icon %>" aria-hidden="true"></span></span><%= s.nom %>
+      </a>
+    <% }) %>
+  </div>
+</section>
+
+<section aria-labelledby="best-title">
+  <div class="section-head"><h2 id="best-title">Meilleurs médecins</h2><a href="/medecins">Voir tout</a></div>
+  <div class="doc-grid">
+    <% best.forEach(function (d) { %><%- include('../partials/doctor-card', { d: d }) %><% }) %>
+  </div>
+</section>

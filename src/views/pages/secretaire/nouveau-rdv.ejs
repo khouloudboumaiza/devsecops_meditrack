@@ -1,0 +1,97 @@
+<header class="page-head">
+  <a class="icon-btn" href="/secretaire" aria-label="Retour à l'agenda"><span class="icon i-arrow-left" aria-hidden="true"></span></a>
+  <h1>Planifier un rendez-vous</h1>
+</header>
+
+<section class="card doc-summary">
+  <span class="avatar avatar-lg av-0" aria-hidden="true"><%= initials(doc.nom) %></span>
+  <div>
+    <h2><%= doc.nom %></h2>
+    <p class="muted"><%= doc.specialite %> · Agenda du praticien</p>
+    <p class="rating"><span class="icon icon-sm i-star" aria-hidden="true"></span><strong><%= Number(doc.note).toFixed(1) %></strong><span class="price"><%= money(doc.tarif) %></span></p>
+  </div>
+</section>
+
+<!-- Étape 1 : Rechercher et sélectionner un patient existant -->
+<section class="card" style="margin-top:var(--s2)">
+  <h2 class="step-title"><span class="step-num">1</span>Sélectionner un patient</h2>
+  <form class="search" method="get" action="/secretaire/nouveau-rdv" style="margin:var(--s2) 0;">
+    <div class="search-field">
+      <span class="icon i-search" aria-hidden="true"></span>
+      <label class="sr-only" for="q">Rechercher un patient</label>
+      <input id="q" name="q" type="search" value="<%= q %>" placeholder="Rechercher par nom ou e-mail…">
+    </div>
+    <button class="btn btn-sm" type="submit">Rechercher</button>
+  </form>
+
+  <% if (q && !patients.length) { %>
+    <p class="muted small">Aucun patient trouvé avec cette recherche.</p>
+  <% } %>
+</section>
+
+<!-- Formulaire de réservation -->
+<form class="booking form" method="post" action="/secretaire/rendez-vous" style="margin-top:var(--s2)">
+
+  <section class="card step">
+    <div class="field">
+      <label for="patient_id">Patient sélectionné</label>
+      <% if (patients.length) { %>
+        <select id="patient_id" name="patient_id" required>
+          <option value="">-- Choisissez un patient --</option>
+          <% patients.forEach(function (p) { %>
+            <option value="<%= p.id %>"><%= p.nom %> (<%= p.email %>)</option>
+          <% }) %>
+        </select>
+      <% } else { %>
+        <p class="muted small">Veuillez d'abord rechercher un patient ci-dessus (ex: « Amine » ou « Salma ») pour le sélectionner.</p>
+        <input type="hidden" id="patient_id" name="patient_id" value="">
+      <% } %>
+    </div>
+  </section>
+
+  <!-- Étape 2 : Date et Heure -->
+  <section class="step card">
+    <h2 class="step-title"><span class="step-num">2</span>Date et heure</h2>
+    <fieldset>
+      <legend class="group-label">Choisir un jour</legend>
+      <div class="picker">
+        <% days.forEach(function (d, i) { %>
+          <input class="chip-input" type="radio" name="date" id="d-<%= d.iso %>" value="<%= d.iso %>" <%= i === 0 ? 'checked' : '' %>>
+          <label class="day-chip" for="d-<%= d.iso %>"><span><%= d.jour %></span><strong><%= d.num %></strong><span><%= d.mois %></span></label>
+        <% }) %>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend class="group-label">Choisir une heure</legend>
+      <% days.forEach(function (d, i) { %>
+        <div class="slot-grid" data-slots-for="<%= d.iso %>" <%= i === 0 ? '' : 'hidden' %>>
+          <% d.slots.forEach(function (s) { %>
+            <input class="chip-input" type="radio" name="heure" id="h-<%= d.iso %>-<%= s.heure %>" value="<%= s.heure %>" <%= s.dispo ? '' : 'disabled' %>>
+            <label class="slot-chip" for="h-<%= d.iso %>-<%= s.heure %>"><%= s.heure %></label>
+          <% }) %>
+        </div>
+      <% }) %>
+      <small class="field-error" id="slot-error" role="alert"></small>
+    </fieldset>
+  </section>
+
+  <!-- Étape 3 : Motif et Type -->
+  <section class="step card">
+    <h2 class="step-title"><span class="step-num">3</span>Motif &amp; Type</h2>
+    <div class="field">
+      <label for="motif">Motif de la visite</label>
+      <input id="motif" name="motif" type="text" required minlength="3" maxlength="200" placeholder="Ex: Consultation de suivi, certificat…">
+      <small class="field-error" data-error-for="motif" role="alert"></small>
+    </div>
+    <fieldset>
+      <legend class="group-label">Type de consultation</legend>
+      <div class="segmented">
+        <input class="chip-input" type="radio" name="type" id="t-cabinet" value="cabinet" checked>
+        <label class="seg" for="t-cabinet"><span class="icon icon-sm i-building" aria-hidden="true"></span>En cabinet</label>
+        <input class="chip-input" type="radio" name="type" id="t-ligne" value="en_ligne">
+        <label class="seg" for="t-ligne"><span class="icon icon-sm i-video" aria-hidden="true"></span>En ligne</label>
+      </div>
+    </fieldset>
+    <button class="btn btn-block btn-lg" type="submit" style="margin-top:var(--s2)">Confirmer le rendez-vous</button>
+  </section>
+</form>

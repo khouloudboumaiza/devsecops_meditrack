@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= typeof title !== 'undefined' ? title + ' · ' : '' %>MediTrack</title>
+  <meta name="description" content="MediTrack – Prise de rendez-vous médicaux en ligne. Projet universitaire DevSecOps.">
+  <link rel="icon" href="/icons/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <!-- JS chargé en defer – pas de script inline pour compatibilité CSP -->
+  <script src="/js/app.js" defer></script>
+  <script src="/js/auth-modal.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#contenu">Aller au contenu</a>
+  <div id="flash" data-message="<%= typeof flashMsg !== 'undefined' ? flashMsg : '' %>"
+       data-type="<%= typeof flashType !== 'undefined' ? flashType : 'success' %>" hidden></div>
+  <main id="contenu"><%- body %></main>
+  <%- include('../partials/toast') %>
+</body>
+</html>

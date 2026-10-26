@@ -1,0 +1,4 @@
+<div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
+<% if (typeof toast !== 'undefined' && toast) { %>
+  <div id="flash" hidden data-type="<%= toast.type %>" data-message="<%= toast.msg %>"></div>
+<% } %>

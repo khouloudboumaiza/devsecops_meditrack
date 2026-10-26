@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= typeof title !== 'undefined' ? title + ' · ' : '' %>MediTrack</title>
+  <link rel="icon" href="/icons/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#contenu">Aller au contenu</a>
+  <div id="flash"
+    data-message="<%= typeof flashMsg !== 'undefined' ? flashMsg : '' %>"
+    data-type="<%= typeof flashType !== 'undefined' ? flashType : 'success' %>"
+    hidden></div>
+  <div class="shell">
+    <%- include('../partials/sidebar') %>
+    <main id="contenu" class="content"><%- body %></main>
+  </div>
+  <%- include('../partials/bottom-nav') %>
+  <%- include('../partials/toast') %>
+</body>
+</html>

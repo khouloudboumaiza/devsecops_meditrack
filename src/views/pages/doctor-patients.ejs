@@ -1,0 +1,24 @@
+<header class="page-head"><h1>Patients</h1></header>
+<form class="search" method="get" action="/medecin/patients" role="search">
+  <div class="search-field">
+    <span class="icon i-search" aria-hidden="true"></span>
+    <label class="sr-only" for="q">Rechercher un patient</label>
+    <input id="q" name="q" type="search" value="<%= q %>" placeholder="Nom du patient">
+  </div>
+  <button class="icon-btn icon-btn-primary" type="submit" aria-label="Rechercher"><span class="icon i-search" aria-hidden="true"></span></button>
+</form>
+<% if (error) { %><div class="alert alert-error" role="alert"><%= error %></div><% } %>
+<% if (q) { %><p class="muted">Résultats pour « <%= q %> » : <%= patients.length %></p><% } %>
+<% if (patients.length) { %>
+  <div class="list">
+    <% patients.forEach(function (p) { %>
+      <a class="card row-link" href="/medecin/patients/<%= p.id %>">
+        <span class="avatar <%= avatarClass(p.id) %>" aria-hidden="true"><%= initials(p.nom) %></span>
+        <div><h3><%= p.nom %></h3><p class="muted small"><%= p.email %></p></div>
+        <span class="icon i-file" aria-hidden="true"></span>
+      </a>
+    <% }) %>
+  </div>
+<% } else if (!error) { %>
+  <div class="card empty"><span class="icon i-users" aria-hidden="true"></span><h2>Aucun patient trouvé</h2><p class="muted">Vérifiez l'orthographe du nom.</p></div>
+<% } %>

@@ -1,0 +1,25 @@
+{
+  "name": "meditrack",
+  "version": "1.0.0",
+  "description": "MediTrack - application web VOLONTAIREMENT VULNERABLE (projet DevSecOps universitaire)",
+  "main": "src/app.js",
+  "//": "VULN-05 : ejs 3.1.6 est une version ancienne avec la CVE-2022-29078 (corrigee en 3.1.7). Voir docs/vulnerabilites.md",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "seed": "node db/seed.js",
+    "audit": "npm audit"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "ejs": "3.1.6",
+    "express": "^4.19.2",
+    "express-ejs-layouts": "^2.5.1",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.5",
+    "prom-client": "^15.1.2"
+  },
+  "engines": { "node": ">=18" }
+}

@@ -1,0 +1,7 @@
+<nav class="bottom-nav" aria-label="Navigation mobile">
+  <% navItems(user.role).forEach(function (item) { %>
+    <a href="<%= item.href %>" <%- isActive(item, currentPath) ? 'aria-current="page"' : '' %>>
+      <span class="icon i-<%= item.icon %>" aria-hidden="true"></span><%= item.label.replace('Tableau de bord', 'Accueil') %>
+    </a>
+  <% }) %>
+</nav>

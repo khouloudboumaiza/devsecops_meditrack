@@ -1,0 +1,34 @@
+<header class="page-head">
+  <a class="icon-btn" href="/accueil" aria-label="Retour à l'accueil"><span class="icon i-arrow-left" aria-hidden="true"></span></a>
+  <h1>Tous les médecins</h1>
+</header>
+
+<form class="search" method="get" action="/medecins" role="search">
+  <div class="search-field">
+    <span class="icon i-search" aria-hidden="true"></span>
+    <label class="sr-only" for="q">Rechercher un médecin</label>
+    <input id="q" name="q" type="search" value="<%= q %>" placeholder="Nom ou spécialité">
+  </div>
+  <% if (specialite) { %><input type="hidden" name="specialite" value="<%= specialite %>"><% } %>
+  <button class="icon-btn icon-btn-primary" type="submit" aria-label="Lancer la recherche"><span class="icon i-search" aria-hidden="true"></span></button>
+</form>
+
+<nav class="chips" aria-label="Filtrer par spécialité">
+  <a class="chip" href="/medecins<%= q ? '?q=' + encodeURIComponent(q) : '' %>" <%- !specialite ? 'aria-current="true"' : '' %>>Tous</a>
+  <% SPECIALITES.forEach(function (s) { %>
+    <a class="chip" href="/medecins?specialite=<%= encodeURIComponent(s.nom) %><%= q ? '&q=' + encodeURIComponent(q) : '' %>" <%- specialite === s.nom ? 'aria-current="true"' : '' %>><%= s.nom %></a>
+  <% }) %>
+</nav>
+
+<% if (doctors.length) { %>
+  <div class="doc-grid">
+    <% doctors.forEach(function (d) { %><%- include('../partials/doctor-card', { d: d }) %><% }) %>
+  </div>
+<% } else { %>
+  <div class="card empty">
+    <span class="icon i-search" aria-hidden="true"></span>
+    <h2>Aucun médecin trouvé</h2>
+    <p class="muted">Essayez un autre nom ou une autre spécialité.</p>
+    <a class="btn btn-outline btn-sm" href="/medecins">Réinitialiser les filtres</a>
+  </div>
+<% } %>

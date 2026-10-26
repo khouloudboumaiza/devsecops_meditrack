@@ -1,0 +1,140 @@
+<header class="page-head">
+  <div style="display:flex;align-items:center;gap:var(--s2);">
+    <a class="icon-btn" href="/medecin/patients" aria-label="Retour aux patients"><span class="icon i-arrow-left" aria-hidden="true"></span></a>
+    <div>
+      <h1>Dossier Médical – <%= patient.nom %></h1>
+      <p class="muted small">Gestion du dossier patient, diagnostics et prescriptions</p>
+    </div>
+  </div>
+  <div>
+    <a class="btn btn-primary btn-sm" href="/medecin/patients/<%= patient.id %>/nouvelle-ordonnance">
+      <span class="icon icon-sm i-plus" aria-hidden="true"></span>
+      Créer une ordonnance pour cette visite
+    </a>
+  </div>
+</header>
+
+<!-- Résumé Patient & Raccourcis -->
+<section class="card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:var(--s3);">
+  <div style="display:flex;align-items:center;gap:16px;">
+    <span class="avatar avatar-lg <%= avatarClass(patient.id) %>" aria-hidden="true"><%= initials(patient.nom) %></span>
+    <div>
+      <h2 style="font-size:18px;margin-bottom:2px;"><%= patient.nom %></h2>
+      <p class="muted small"><%= patient.email %></p>
+      <% if (patient.date_naissance) { %>
+        <p class="muted small">Né(e) le : <%= new Date(patient.date_naissance).toLocaleDateString('fr-FR') %></p>
+      <% } %>
+    </div>
+  </div>
+  <div>
+    <span class="badge badge-info">Dossier N° <%= patient.id %></span>
+  </div>
+</section>
+
+<!-- SECTION 1 : HISTORIQUE DES ORDONNANCES INDÉPENDANTES -->
+<section style="margin-bottom:var(--s4);">
+  <div class="section-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--s2);">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="icon i-pill" aria-hidden="true" style="color:var(--primary);"></span>
+      <h2 style="font-size:17px;font-weight:700;">Ordonnances délivrées (<%= ordonnances ? ordonnances.length : 0 %>)</h2>
+    </div>
+    <a class="btn btn-outline btn-sm" href="/medecin/patients/<%= patient.id %>/nouvelle-ordonnance">
+      <span class="icon icon-sm i-plus"></span>
+      Nouvelle ordonnance
+    </a>
+  </div>
+
+  <% if (ordonnances && ordonnances.length) { %>
+    <div class="list">
+      <% ordonnances.forEach(function (ord) { %>
+        <article class="card" style="display:flex;justify-content:space-between;align-items:center;gap:16px;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="kpi-icon-badge" style="background:rgba(31, 111, 235, 0.1);color:var(--primary);">
+              <span class="rx-badge" style="font-size:20px;line-height:1;">Rx</span>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+                <h3 style="font-size:15px;font-weight:700;"><%= ord.diagnostic_associe || 'Ordonnance officielle' %></h3>
+                <span class="badge badge-info"><%= String(ord.date_creation.toISOString()).slice(0, 10) %></span>
+              </div>
+              <p class="muted small">Prescrite par le <%= ord.medecin_nom %></p>
+            </div>
+          </div>
+          <div>
+            <a class="btn btn-outline btn-sm" href="/ordonnances/<%= ord.id %>">
+              <span class="icon icon-sm i-file" aria-hidden="true"></span>
+              Voir l'ordonnance
+            </a>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="card empty">
+      <span class="icon i-pill" aria-hidden="true"></span>
+      <h3>Aucune ordonnance émise pour ce patient</h3>
+      <p class="muted">Utilisez le bouton « Créer une ordonnance pour cette visite » pour rédiger une nouvelle prescription.</p>
+    </div>
+  <% } %>
+</section>
+
+<!-- SECTION 2 : FORMULAIRE POUR AJOUTER UN DIAGNOSTIC / NOTE AU DOSSIER -->
+<section class="card" style="margin-bottom:var(--s4);">
+  <div class="card-title" style="display:flex;align-items:center;gap:8px;margin-bottom:var(--s2);">
+    <span class="icon i-pencil"></span>
+    <h2 style="font-size:16px;">Consigner une observation ou un diagnostic</h2>
+  </div>
+  <form class="form" method="post" action="/medecin/patients/<%= patient.id %>/record">
+    <div class="field">
+      <label for="diagnostic">Diagnostic médical</label>
+      <input id="diagnostic" name="diagnostic" type="text" placeholder="Ex: Rhinopharyngite aiguë, Hypertension stade 1…">
+    </div>
+
+    <div class="field">
+      <label for="notes">Notes d'observation clinique &amp; suivi</label>
+      <textarea id="notes" name="notes" rows="3" placeholder="Observations cliniques, conduite à tenir, examen complémentaire…"></textarea>
+    </div>
+
+    <button class="btn btn-pill" type="submit">
+      <span class="icon icon-sm i-check"></span>
+      Enregistrer dans le dossier
+    </button>
+  </form>
+</section>
+
+<!-- SECTION 3 : HISTORIQUE DES ACTES & DIAGNOSTICS (VULN-06 conservé) -->
+<section>
+  <div class="section-head" style="margin-bottom:var(--s2);">
+    <h2 style="font-size:17px;font-weight:700;">Historique des Consultations &amp; Diagnostics (<%= records.length %>)</h2>
+  </div>
+
+  <% if (records.length) { %>
+    <div class="list">
+      <% records.forEach(function (r) { %>
+        <article class="card">
+          <div class="record-title" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <h3 style="font-size:16px;font-weight:700;"><%= r.diagnostic || 'Consultation de suivi' %></h3>
+            <span class="badge badge-info"><%= String(r.created_at.toISOString()).slice(0, 10) %></span>
+          </div>
+
+          <!-- Notes du médecin : contient intentionnellement VULN-06 (Stored XSS) -->
+          <% if (r.notes) { %>
+            <div class="record-block">
+              <h4 style="font-size:13px;color:var(--muted);"><span class="icon icon-sm i-pencil" aria-hidden="true"></span>Notes de consultation</h4>
+              <% (r.notes || '').split('\n').filter(Boolean).forEach(function (line) { %>
+                <!-- VULN-06 : XSS stocké - la note est affichée sans échappement avec <%- line %> -->
+                <p class="note-line"><%- line %></p>
+              <% }) %>
+            </div>
+          <% } %>
+        </article>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="card empty">
+      <span class="icon i-file" aria-hidden="true"></span>
+      <h3>Aucun antécédent enregistré</h3>
+      <p class="muted">Utilisez le formulaire ci-dessus pour consigner une première observation clinique.</p>
+    </div>
+  <% } %>
+</section>

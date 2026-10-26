@@ -1,0 +1,22 @@
+<header class="page-head"><h1>Mes rendez-vous</h1><a class="btn btn-sm" href="/medecins"><span class="icon icon-sm i-plus" aria-hidden="true"></span>Réserver</a></header>
+
+<nav class="tabs" aria-label="Filtrer les rendez-vous">
+  <a class="tab" href="/rendez-vous?tab=avenir" <%- tab === 'avenir' ? 'aria-current="page"' : '' %>>À venir <span class="count"><%= counts.avenir %></span></a>
+  <a class="tab" href="/rendez-vous?tab=passes" <%- tab === 'passes' ? 'aria-current="page"' : '' %>>Passés <span class="count"><%= counts.passes %></span></a>
+  <a class="tab" href="/rendez-vous?tab=annules" <%- tab === 'annules' ? 'aria-current="page"' : '' %>>Annulés <span class="count"><%= counts.annules %></span></a>
+</nav>
+
+<% if (items.length) { %>
+  <div class="list">
+    <% items.forEach(function (a) { %>
+      <%- include('../partials/appt-card', { a: a, who: a.medecin_nom, sub: a.specialite, cancellable: tab === 'avenir' }) %>
+    <% }) %>
+  </div>
+<% } else { %>
+  <div class="card empty">
+    <span class="icon i-calendar" aria-hidden="true"></span>
+    <h2>Aucun rendez-vous ici</h2>
+    <p class="muted">Vos rendez-vous <%= tab === 'avenir' ? 'à venir' : tab === 'passes' ? 'passés' : 'annulés' %> apparaîtront dans cet onglet.</p>
+    <% if (tab === 'avenir') { %><a class="btn btn-sm" href="/medecins">Prendre un rendez-vous</a><% } %>
+  </div>
+<% } %>
