@@ -1,0 +1,33 @@
+# Configuration Gitleaks - MediTrack
+# On garde toutes les règles par défaut de Gitleaks et on ajoute des règles
+# spécifiques au projet : les secrets "fictifs" de MediTrack ont une faible
+# entropie et ne sont donc pas détectés par les règles génériques.
+
+title = "MediTrack gitleaks config"
+
+[extend]
+useDefault = true
+
+# VULN-04 : clé d'API écrite en dur dans le code (src/config.js)
+[[rules]]
+id = "meditrack-hardcoded-api-key"
+description = "VULN-04 - Clé d'API écrite en dur dans le code source"
+regex = '''(?i)(?:api[_-]?key|apikey)\s*[:=]\s*['"]([A-Za-z0-9_\-]{12,})['"]'''
+secretGroup = 1
+keywords = ["api_key", "apikey", "api-key"]
+
+# VULN-04 : secret JWT écrit en dur (valeur littérale ou valeur par défaut)
+[[rules]]
+id = "meditrack-hardcoded-jwt-secret"
+description = "VULN-04 - Secret de signature JWT écrit en dur"
+regex = '''(?i)jwt[_-]?secret\s*[:=]\s*(?:process\.env\.[A-Z_]+\s*\|\|\s*)?['"]?([A-Za-z0-9_\-]{8,})['"]?'''
+secretGroup = 1
+keywords = ["jwt_secret", "jwt-secret", "jwtsecret"]
+
+# Mot de passe de base de données en clair dans une chaîne de connexion
+[[rules]]
+id = "meditrack-db-url-password"
+description = "Mot de passe en clair dans une URL de connexion PostgreSQL"
+regex = '''postgres(?:ql)?://[^:\s]+:([^@\s]{6,})@'''
+secretGroup = 1
+keywords = ["postgres://", "postgresql://"]

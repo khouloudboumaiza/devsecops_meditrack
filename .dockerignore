@@ -8,3 +8,10 @@ docs
 *.md
 docker-compose.yml
 .env.example
+# Fichiers CI/CD et sécurité (inutiles dans l'image)
+.github
+.gitlab-ci.yml
+.gitleaks.toml
+.semgrep
+scripts
+reports

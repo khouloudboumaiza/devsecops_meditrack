@@ -3,3 +3,6 @@ node_modules/
 *.log
 .DS_Store
 .env.example
+
+# Rapports des scans de sécurité locaux
+reports/
