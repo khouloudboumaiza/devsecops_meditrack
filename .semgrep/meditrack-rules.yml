@@ -1,0 +1,42 @@
+rules:
+  # VULN-01 : injection SQL par concaténation de chaînes dans db.query()
+  - id: meditrack-sqli-string-concat
+    languages: [javascript]
+    severity: ERROR
+    message: >-
+      Requête SQL construite par concaténation avec une entrée utilisateur
+      (VULN-01 - SQL Injection). Utiliser une requête paramétrée : db.query(sql, [param]).
+    metadata:
+      cwe: "CWE-89: SQL Injection"
+      owasp: "A03:2021 - Injection"
+      vuln_id: VULN-01
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $SQL = "..." + $X + "...";
+              ...
+              $DB.query($SQL, ...);
+          - pattern: |
+              $SQL = "..." + $X;
+              ...
+              $DB.query($SQL, ...);
+          - pattern: $DB.query("..." + $X + "...", ...)
+          - pattern: $DB.query(`...${$X}...`, ...)
+      - pattern-not: $DB.query("..." + "...", ...)
+
+  # VULN-06 : XSS stocké - sortie non échappée dans un template EJS
+  - id: meditrack-ejs-unescaped-output
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      Sortie EJS non échappée '<%- ... %>' sur une donnée utilisateur
+      (VULN-06 - Stored XSS). Utiliser '<%= ... %>' qui échappe le HTML.
+    metadata:
+      cwe: "CWE-79: Cross-site Scripting"
+      owasp: "A03:2021 - Injection"
+      vuln_id: VULN-06
+    paths:
+      include: ["*.ejs"]
+    # <%- variable %> : sortie brute d'une variable (les include() et les
+    # attributs ternaires statiques ne sont pas concernés)
+    pattern-regex: '<p[^>]*><%-\s*[A-Za-z_][\w.]*\s*%>|^\s*<%-\s*[A-Za-z_][\w.]*\s*%>'

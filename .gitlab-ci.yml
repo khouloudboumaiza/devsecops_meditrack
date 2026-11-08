@@ -1,0 +1,211 @@
+# =============================================================================
+#  MediTrack - Pipeline DevSecOps (GitLab CI/CD)
+#  Personne 2 : Pipeline CI/CD + Sécurité statique (SAST / SCA / Secrets)
+#
+#  Stages :  build  ->  test  ->  scan  ->  deploy
+#
+#  Politique de blocage (voir docs/cicd.md) :
+#    - Secret détecté (Gitleaks)            -> pipeline ROUGE (bloquant)
+#    - SAST Semgrep sévérité ERROR          -> pipeline ROUGE (bloquant)
+#    - Vulnérabilité CRITICAL (Trivy/npm)   -> pipeline ROUGE (bloquant)
+#    - Vulnérabilité HIGH (Trivy)           -> AVERTISSEMENT (orange, non bloquant)
+#    - deploy ne s'exécute que si TOUS les jobs bloquants sont verts
+# =============================================================================
+
+stages:
+  - build
+  - test
+  - scan
+  - deploy
+
+variables:
+  # Image construite pour ce commit, poussée dans le GitLab Container Registry
+  IMAGE_TAG: "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+  IMAGE_LATEST: "$CI_REGISTRY_IMAGE:latest"
+  # Versions des outils FIXÉES (jamais "latest") : un scanner de sécurité
+  # est lui-même une dépendance de la chaîne d'approvisionnement.
+  # Trivy 0.69.3 = version déclarée sûre après la compromission CVE-2026-33634.
+  TRIVY_IMAGE: "aquasec/trivy:0.69.3"
+  GITLEAKS_IMAGE: "zricethezav/gitleaks:v8.28.0"
+  SEMGREP_IMAGE: "semgrep/semgrep:1.184.0"
+  NODE_IMAGE: "node:20-alpine"
+  DOCKER_TLS_CERTDIR: "/certs"
+
+# -----------------------------------------------------------------------------
+# STAGE 1 : BUILD - construction de l'image Docker (Dockerfile de la Personne 1)
+# -----------------------------------------------------------------------------
+build-image:
+  stage: build
+  image: docker:27
+  services:
+    - docker:27-dind
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+  script:
+    - docker build -t "$IMAGE_TAG" .
+    # Vérification : l'image ne doit PAS tourner en root
+    - test "$(docker run --rm --entrypoint whoami "$IMAGE_TAG")" != "root"
+    - docker push "$IMAGE_TAG"
+
+# -----------------------------------------------------------------------------
+# STAGE 2 : TEST - l'application démarre et répond sur /health et /metrics
+# -----------------------------------------------------------------------------
+smoke-test:
+  stage: test
+  image: $NODE_IMAGE
+  needs: []
+  script:
+    - npm ci
+    # Vérification syntaxique de tous les fichiers JavaScript
+    - find src db -name "*.js" -exec node --check {} \;
+    # Démarrage de l'app en arrière-plan puis tests des endpoints techniques
+    - PORT=3000 node src/app.js > app.log 2>&1 &
+    - sleep 5
+    - wget -qO- http://localhost:3000/health | grep -q ok
+    - wget -qO- http://localhost:3000/metrics | grep -q http_requests_total
+  artifacts:
+    when: always
+    paths: [app.log]
+    expire_in: 1 week
+
+# -----------------------------------------------------------------------------
+# STAGE 3 : SCAN - sécurité statique
+# -----------------------------------------------------------------------------
+
+# --- Secrets : Gitleaks (VULN-04) --------------------------------------------
+# Scanne TOUT l'historique Git : un secret supprimé dans un commit récent
+# reste exploitable s'il est encore dans l'historique.
+secrets-gitleaks:
+  stage: scan
+  needs: []
+  image:
+    name: $GITLEAKS_IMAGE
+    entrypoint: [""]
+  variables:
+    GIT_DEPTH: 0            # cloner tout l'historique
+  script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - gitleaks git . --config .gitleaks.toml --redact --verbose
+      --report-format json --report-path gitleaks-report.json
+  artifacts:
+    when: always
+    paths: [gitleaks-report.json]
+    expire_in: 1 week
+  allow_failure: false      # POLITIQUE : un secret = pipeline rouge
+
+# --- SAST : Semgrep (VULN-01 SQLi, VULN-06 XSS) ------------------------------
+sast-semgrep:
+  stage: scan
+  needs: []
+  image: $SEMGREP_IMAGE
+  variables:
+    SEMGREP_SEND_METRICS: "off"
+  script:
+    # 1) Rapport complet (règles projet + règles communautaires), non bloquant
+    - semgrep scan
+      --config .semgrep/meditrack-rules.yml
+      --config p/javascript --config p/expressjs --config p/nodejs
+      --json --output semgrep-report.json
+      --gitlab-sast-output gl-sast-report.json || true
+    # 2) Contrôle bloquant : échec si au moins un résultat de sévérité ERROR
+    - semgrep scan
+      --config .semgrep/meditrack-rules.yml
+      --config p/javascript --config p/expressjs --config p/nodejs
+      --severity ERROR --error
+  artifacts:
+    when: always
+    paths: [semgrep-report.json]
+    reports:
+      sast: gl-sast-report.json   # affiché dans l'onglet Sécurité de GitLab
+    expire_in: 1 week
+  allow_failure: false      # POLITIQUE : SAST ERROR = pipeline rouge
+
+# --- SCA : npm audit (VULN-05 ejs 3.1.6) -------------------------------------
+sca-npm-audit:
+  stage: scan
+  needs: []
+  image: $NODE_IMAGE
+  script:
+    - npm audit --omit=dev --json > npm-audit.json || true
+    - npm audit --omit=dev || true          # affichage lisible dans les logs
+    - npm audit --omit=dev --audit-level=critical   # bloquant sur CRITICAL
+  artifacts:
+    when: always
+    paths: [npm-audit.json]
+    expire_in: 1 week
+  allow_failure: false
+
+# --- SCA : Trivy sur les dépendances du projet (package-lock.json) -----------
+sca-trivy-fs:
+  stage: scan
+  needs: []
+  image:
+    name: $TRIVY_IMAGE
+    entrypoint: [""]
+  script:
+    - trivy fs --scanners vuln,misconfig --format json --output trivy-fs.json .
+    # HIGH : avertissement (code de sortie 2 => job orange)
+    - trivy fs --scanners vuln --severity HIGH --exit-code 2 . || HIGH_RC=$?
+    # CRITICAL : bloquant (code de sortie 1 => job rouge)
+    - trivy fs --scanners vuln --severity CRITICAL --exit-code 1 .
+    - exit ${HIGH_RC:-0}
+  artifacts:
+    when: always
+    paths: [trivy-fs.json]
+    expire_in: 1 week
+  allow_failure:
+    exit_codes: [2]         # HIGH seul => warning, CRITICAL => échec
+
+# --- Trivy sur l'image Docker construite au stage build ----------------------
+scan-trivy-image:
+  stage: scan
+  needs: [build-image]
+  image:
+    name: $TRIVY_IMAGE
+    entrypoint: [""]
+  variables:
+    TRIVY_USERNAME: "$CI_REGISTRY_USER"
+    TRIVY_PASSWORD: "$CI_REGISTRY_PASSWORD"
+  script:
+    - trivy image --format json --output trivy-image.json "$IMAGE_TAG"
+    - trivy image --format template --template "@/contrib/gitlab.tpl"
+      --output gl-container-scanning-report.json "$IMAGE_TAG"
+    - trivy image --severity HIGH --exit-code 2 "$IMAGE_TAG" || HIGH_RC=$?
+    - trivy image --severity CRITICAL --exit-code 1 "$IMAGE_TAG"
+    - exit ${HIGH_RC:-0}
+  artifacts:
+    when: always
+    paths: [trivy-image.json]
+    reports:
+      container_scanning: gl-container-scanning-report.json
+    expire_in: 1 week
+  allow_failure:
+    exit_codes: [2]
+
+# -----------------------------------------------------------------------------
+# STAGE 4 : DEPLOY - publication de l'image validée
+# Ne s'exécute QUE si tous les jobs bloquants précédents sont verts.
+# L'image ":latest" est celle que la Personne 3 déploie sur Kubernetes.
+# -----------------------------------------------------------------------------
+deploy-image:
+  stage: deploy
+  image: docker:27
+  services:
+    - docker:27-dind
+  needs:
+    - build-image
+    - smoke-test
+    - secrets-gitleaks
+    - sast-semgrep
+    - sca-npm-audit
+    - sca-trivy-fs
+    - scan-trivy-image
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+  script:
+    - docker pull "$IMAGE_TAG"
+    - docker tag "$IMAGE_TAG" "$IMAGE_LATEST"
+    - docker push "$IMAGE_LATEST"
+    - echo "Image validée et publiée : $IMAGE_LATEST"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
