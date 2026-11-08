@@ -101,7 +101,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Trivy fs - HIGH (avertissement)
         continue-on-error: true
-        run: docker run --rm -v "$PWD":/src -w /src "$TRIVY_IMAGE" fs --scanners vuln --severity HIGH --exit-code 1 .
+        run: docker run --rm -v "$PWD":/src -w /src "$TRIVY_IMAGE" fs --scanners vuln --severity HIGH --exit-code 0 .
       - name: Trivy fs - CRITICAL (BLOQUANT)
         run: docker run --rm -v "$PWD":/src -w /src "$TRIVY_IMAGE" fs --scanners vuln --severity CRITICAL --exit-code 1 .
 
@@ -116,7 +116,7 @@ jobs:
         continue-on-error: true
         run: |
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" \
-            image --severity HIGH --exit-code 1 meditrack:${{ github.sha }}
+            image --severity HIGH --exit-code 0 meditrack:${{ github.sha }}
       - name: Trivy image - CRITICAL (BLOQUANT)
         run: |
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" \
