@@ -1,0 +1,51 @@
+global:
+  # Configuration Gmail SMTP
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'dhaouadiameny3@gmail.com'
+  smtp_auth_username: 'dhaouadiameny3@gmail.com'
+  smtp_auth_password: 'bcvb ucbg bidb vkyj'
+  smtp_require_tls: true
+
+  resolve_timeout: 5m
+
+# Configuration du routage des alertes
+route:
+  receiver: 'meditrack-email'
+
+  # Regrouper les alertes similaires
+  group_by:
+    - alertname
+    - job
+
+  # Première notification après 30 secondes
+  group_wait: 30s
+
+  # Attendre 5 minutes avant de notifier les nouveaux événements
+  group_interval: 5m
+
+  # Rappel si une alerte reste active
+  repeat_interval: 4h
+
+receivers:
+  - name: 'meditrack-email'
+    email_configs:
+      - to: 'betri43691909@gmail.com'
+        send_resolved: true
+        headers:
+          subject: '[MediTrack] {{ .Status | toUpper }} - {{ .CommonLabels.alertname }}'
+        html: |
+          <h2>MediTrack Monitoring Alert</h2>
+
+          <p><strong>Status:</strong> {{ .Status }}</p>
+
+          {{ range .Alerts }}
+          <hr>
+          <p><strong>Alert:</strong> {{ .Labels.alertname }}</p>
+          <p><strong>Service:</strong> {{ .Labels.job }}</p>
+          <p><strong>Severity:</strong> {{ .Labels.severity }}</p>
+          <p><strong>Description:</strong> {{ .Annotations.description }}</p>
+          <p><strong>Started:</strong> {{ .StartsAt }}</p>
+          {{ if eq .Status "resolved" }}
+          <p><strong>Resolved:</strong> {{ .EndsAt }}</p>
+          {{ end }}
+          {{ end }}

@@ -1,0 +1,60 @@
+
+groups:
+
+  - name: meditrack-alerts
+    rules:
+
+      # 1. Application DOWN
+      - alert: MediTrackAppDown
+        expr: up{job="meditrack-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "MediTrack application is DOWN"
+          description: "The MediTrack application has been unavailable for more than 1 minute."
+
+      # 2. PostgreSQL DOWN
+      - alert: PostgreSQLDown
+        expr: up{job="meditrack-db"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is DOWN"
+          description: "PostgreSQL exporter is unavailable."
+
+      # 3. High CPU usage
+      - alert: HighCPUUsage
+        expr: (1 - avg by(instance)(rate(container_cpu_usage_seconds_total{name!=""}[5m]))) * 100 > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "Container CPU usage is above 80%."
+
+      - alert: ForceBruteConnexion
+        expr: sum(increase(http_requests_total{route="/api/auth/login", status="401"}[1m])) > 10
+        labels:
+          severity: critical
+        annotations:
+          summary: "Force brute probable sur la connexion"
+          description: "Plus de 10 échecs de connexion (HTTP 401) en 1 minute sur /api/auth/login."
+
+      - alert: AccesRefusesEnRafale
+        expr: sum(increase(http_requests_total{status="403"}[1m])) > 5
+        labels:
+          severity: warning
+        annotations:
+          summary: "Rafale d'accès refusés"
+          description: "Plus de 5 réponses HTTP 403 en 1 minute : tentative possible d'accès à des dossiers d'autres patients (IDOR)."
+
+      - alert: ApplicationIndisponible
+        expr: up{job="meditrack"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Application MediTrack indisponible"
+          description: "Prometheus ne parvient plus à lire /metrics depuis plus de 30 secondes."

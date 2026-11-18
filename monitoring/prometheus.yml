@@ -1,0 +1,45 @@
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - /etc/prometheus/alert_rules.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+scrape_configs:
+
+  # Application MediTrack
+  - job_name: "meditrack-app"
+    metrics_path: /metrics
+    scrape_interval: 10s
+    static_configs:
+      - targets: ["app:3000"]
+        labels:
+          service: meditrack
+          tier: application
+
+  # PostgreSQL metrics
+  - job_name: "meditrack-db"
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+        labels:
+          service: meditrack
+          tier: database
+
+  # Docker containers metrics
+  - job_name: "cadvisor"
+    scrape_interval: 10s
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+  # Prometheus self-monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
